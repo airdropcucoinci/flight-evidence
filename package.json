@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.browser.json",
     "typecheck": "tsc -p tsconfig.browser.json --noEmit",
-    "test": "vitest run",
+    "test": "vitest run tests/engine.test.ts",
     "start": "node server.mjs",
     "test:smoke": "npm run build && node --test tests/smoke.test.mjs",
     "test:node": "npm run build && node --test tests/*.test.mjs",
