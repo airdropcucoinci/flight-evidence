@@ -1,0 +1,35 @@
+name: Flight Evidence CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Type check
+        run: npm run typecheck
+      - name: Node regression tests
+        run: npm run test:node
+      - name: Vitest
+        run: npm test
+      - name: Test scenario contract
+        run: npm run test:contract
+      - name: Release artifact safety scan
+        run: npm run check:release
