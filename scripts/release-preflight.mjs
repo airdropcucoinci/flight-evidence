@@ -1,0 +1,17 @@
+import { readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
+const root = process.cwd();
+const failures = [];
+const check = (ok, description) => { console.log(`${ok ? 'PASS' : 'FAIL'} ${description}`); if (!ok) failures.push(description); };
+const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+check(pkg.private === true, 'Package is marked private');
+check(Boolean(pkg.scripts?.test && pkg.scripts?.['test:node'] && pkg.scripts?.build), 'Build and test scripts defined');
+check(existsSync(join(root, 'tests/engine.test.ts')), 'Vitest suite present');
+check(existsSync(join(root, '.github/workflows/ci.yml')), 'CI workflow present');
+check(existsSync(join(root, 'TESTSPRITE_SCENARIOS.md')), 'TestSprite scenarios documented');
+const readme = readFileSync(join(root, 'README.md'), 'utf8');
+check(/Flight Evidence/i.test(readme), 'README identifies project');
+const lock = existsSync(join(root, 'package-lock.json'));
+check(lock, 'Reproducible npm lockfile exists');
+console.log(`\nPreflight: ${failures.length} failure(s).`);
+if (failures.length) process.exitCode = 1;

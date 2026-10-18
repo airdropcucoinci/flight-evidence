@@ -1,0 +1,18 @@
+import {readFileSync,existsSync} from 'node:fs';
+import {resolve} from 'node:path';
+const root=resolve(import.meta.dirname,'..');
+const read=p=>readFileSync(resolve(root,p),'utf8');
+const cases=read('TESTSPRITE_SCENARIOS.md');
+const html=read('index.html');
+const browser=read('src/browser.ts');
+const server=read('server.mjs');
+const errors=[];
+const assert=(ok,msg)=>{console.log(`${ok?'PASS':'FAIL'} ${msg}`);if(!ok)errors.push(msg)};
+const ids=[...cases.matchAll(/\| (TS-\d\d) \|/g)].map(m=>m[1]);
+assert(ids.length===14 && new Set(ids).size===14,'14 unique documented TestSprite scenarios');
+for(const n of [1,2,3,7,8,9,10]) assert(new RegExp(`L${n}(?!\\d)`).test(cases),`Sample L${n} is in TestSprite plan`);
+for(const endpoint of ['/api/report','/api/analyze','/health']) assert(cases.includes(endpoint) && server.includes(endpoint),`Documented endpoint exists: ${endpoint}`);
+assert(/data-testid/.test(html+browser),'UI declares stable test selectors');
+assert(existsSync(resolve(root,'tests/competition-journeys.test.mjs')),'Local HTTP acceptance suite exists');
+console.log(`Contract check: ${errors.length} failure(s)`);
+if(errors.length)process.exitCode=1;
