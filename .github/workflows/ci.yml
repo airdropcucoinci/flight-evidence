@@ -25,6 +25,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Type check
         run: npm run typecheck
+      - name: Smoke tests
+        run: npm run test:smoke
       - name: Node regression tests
         run: npm run test:node
       - name: Vitest
