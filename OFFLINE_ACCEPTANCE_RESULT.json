@@ -1,0 +1,32 @@
+{
+  "generatedAt": "2026-10-17T06:52:11.213Z",
+  "results": [
+    {
+      "name": "Node.js regression tests",
+      "ok": true,
+      "exitCode": 0,
+      "output": "TAP version 13\n# Subtest: Offline HTTP acceptance: health, samples, clean, anomaly, invalid input, report\nok 1 - Offline HTTP acceptance: health, samples, clean, anomaly, invalid input, report\n  ---\n  duration_ms: 192.417985\n  type: 'test'\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 1\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 318.847189\n",
+      "error": ""
+    },
+    {
+      "name": "TestSprite scenario contract",
+      "ok": true,
+      "exitCode": 0,
+      "output": "PASS 14 unique documented TestSprite scenarios\nPASS Sample L1 is in TestSprite plan\nPASS Sample L2 is in TestSprite plan\nPASS Sample L3 is in TestSprite plan\nPASS Sample L7 is in TestSprite plan\nPASS Sample L8 is in TestSprite plan\nPASS Sample L9 is in TestSprite plan\nPASS Sample L10 is in TestSprite plan\nPASS Documented endpoint exists: /api/report\nPASS Documented endpoint exists: /api/analyze\nPASS Documented endpoint exists: /health\nPASS UI declares stable test selectors\nPASS Local HTTP acceptance suite exists\nContract check: 0 failure(s)\n",
+      "error": ""
+    },
+    {
+      "name": "Release secret scanner",
+      "ok": true,
+      "exitCode": 0,
+      "output": "PASS Release artifact security scan\n",
+      "error": ""
+    }
+  ],
+  "pending": [
+    "Vitest (npm dependencies unavailable here)",
+    "Real browser E2E",
+    "GitHub CI and TestSprite PR",
+    "Public deployment and Discord submission"
+  ]
+}

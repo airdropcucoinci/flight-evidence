@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createReport} from '../dist/report.js';
+import {sample} from '../dist/samples.js';
+const gap=()=>{const rows=sample(1).map(x=>({...x}));for(let i=15;i<rows.length;i++)rows[i].t+=8;return rows;};
+test('clean complete report has CLEAN assessment',()=>{const r=createReport(sample(1));assert.equal(r.assessment.code,'CLEAN');assert.equal(r.assessment.complete,true);});
+test('no findings with gap is INCOMPLETE, not a clean certification',()=>{const r=createReport(gap());assert.equal(r.assessment.code,'WARNING');assert.equal(r.assessment.complete,false);assert.ok(r.assessment.indeterminateRules.includes('R1'));});
+test('existing critical finding takes precedence over incomplete coverage',()=>{const rows=gap();rows[5].baroAlt=150;const r=createReport(rows);assert.equal(r.assessment.complete,false);assert.equal(r.assessment.code,'WARNING');});
+test('UI exposes assessment status for TestSprite',()=>{const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');const js=readFileSync(new URL('../dist/browser.js',import.meta.url),'utf8');assert.match(html,/data-testid="assessment-status"/);assert.match(js,/DEĞERLENDİRME EKSİK/);});

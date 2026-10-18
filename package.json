@@ -1,0 +1,22 @@
+{
+  "name": "flight-evidence",
+  "version": "4.28.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.browser.json",
+    "typecheck": "tsc -p tsconfig.browser.json --noEmit",
+    "test": "vitest run",
+    "start": "node server.mjs",
+    "test:smoke": "npm run build && node --test tests/smoke.test.mjs",
+    "test:node": "npm run build && node --test tests/*.test.mjs",
+    "preflight": "node scripts/release-preflight.mjs",
+    "test:contract": "node scripts/check-test-contract.mjs",
+    "check:release": "node scripts/check-release-artifacts.mjs",
+    "verify:deployment": "node scripts/verify-deployment.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}
