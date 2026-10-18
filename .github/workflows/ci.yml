@@ -34,4 +34,7 @@ jobs:
       - name: Test scenario contract
         run: npm run test:contract
       - name: Release artifact safety scan
-        run: npm run check:release
+        run: |
+          mkdir -p "$RUNNER_TEMP/flight-evidence-release"
+          git archive HEAD | tar -x -C "$RUNNER_TEMP/flight-evidence-release"
+          (cd "$RUNNER_TEMP/flight-evidence-release" && node scripts/check-release-artifacts.mjs)
