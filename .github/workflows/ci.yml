@@ -21,8 +21,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Type check
         run: npm run typecheck
       - name: Smoke tests
@@ -32,7 +33,7 @@ jobs:
       - name: Vitest
         run: npm test
       - name: Install Chromium for real browser tests
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps --only-shell chromium
       - name: Browser user journeys
         run: npm run test:e2e
       - name: Upload browser failure artifacts
