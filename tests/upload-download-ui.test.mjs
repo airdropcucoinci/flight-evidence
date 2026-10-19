@@ -13,7 +13,7 @@ test('uploaded file is validated before replacing current analysis',()=>{
  assert.match(handler,/const next=parseTelemetry/);
  assert.ok(handler.indexOf('analyze(next)')<handler.indexOf('current=next'));
  assert.match(handler,/Yalnızca CSV veya JSON/);
- assert.match(handler,/byId\('error'\)\.textContent/);
+ assert.match(handler,/showInvalid\(err\)/);
 });
 test('both browser downloads defer blob URL cleanup',()=>{
  assert.match(source,/flight-evidence-sample\.csv/);
