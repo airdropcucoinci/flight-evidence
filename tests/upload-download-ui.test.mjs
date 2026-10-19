@@ -21,3 +21,12 @@ test('both browser downloads defer blob URL cleanup',()=>{
  const occurrences=source.match(/setTimeout\(\(\)=>URL\.revokeObjectURL\(/g)||[];
  assert.equal(occurrences.length,2);
 });
+
+test('CSV fixtures include valid and invalid deterministic inputs',async()=>{
+ const {parseTelemetry}=await import('../dist/format.js');
+ const valid=readFileSync(new URL('../test-fixtures/valid-flight.csv',import.meta.url),'utf8');
+ const invalid=readFileSync(new URL('../test-fixtures/invalid-flight.csv',import.meta.url),'utf8');
+ const rows=parseTelemetry(valid,'csv');
+ assert.equal(rows.length,20);
+ assert.throws(()=>parseTelemetry(invalid,'csv'),/invalid lat/);
+});
