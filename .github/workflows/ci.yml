@@ -54,6 +54,11 @@ jobs:
           if-no-files-found: ignore
       - name: Test scenario contract
         run: npm run test:contract
+      - name: Release artifact safety scan
+        run: |
+          mkdir -p "$RUNNER_TEMP/flight-evidence-release"
+          git archive HEAD | tar -x -C "$RUNNER_TEMP/flight-evidence-release"
+          (cd "$RUNNER_TEMP/flight-evidence-release" && node scripts/check-release-artifacts.mjs)
       - name: Package release source snapshot
         run: |
           git archive --format=zip --output=flight-evidence-source.zip HEAD
@@ -67,8 +72,3 @@ jobs:
             flight-evidence-source.zip
             flight-evidence-source.sha256
           if-no-files-found: error
-      - name: Release artifact safety scan
-        run: |
-          mkdir -p "$RUNNER_TEMP/flight-evidence-release"
-          git archive HEAD | tar -x -C "$RUNNER_TEMP/flight-evidence-release"
-          (cd "$RUNNER_TEMP/flight-evidence-release" && node scripts/check-release-artifacts.mjs)
