@@ -54,6 +54,19 @@ jobs:
           if-no-files-found: ignore
       - name: Test scenario contract
         run: npm run test:contract
+      - name: Package release source snapshot
+        run: |
+          git archive --format=zip --output=flight-evidence-source.zip HEAD
+          sha256sum flight-evidence-source.zip > flight-evidence-source.sha256
+      - name: Upload source backup with checksum
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flight-evidence-source-backup
+          path: |
+            flight-evidence-source.zip
+            flight-evidence-source.sha256
+          if-no-files-found: error
       - name: Release artifact safety scan
         run: |
           mkdir -p "$RUNNER_TEMP/flight-evidence-release"
