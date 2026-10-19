@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 
 test('L1 clean: header, disclaimer, figures and source data render without page errors',async({page})=>{
- const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));
  await page.goto('/');
  await expect(page.getByRole('heading',{name:'Flight Evidence'})).toBeVisible();
  await expect(page.locator('.notice')).toContainText('Sentetik örnek kayıtlarla eğitim demosu');
