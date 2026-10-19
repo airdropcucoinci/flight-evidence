@@ -42,6 +42,16 @@ The server accepts CSV/JSON telemetry and prebuilt synthetic sample IDs. Valid t
 - `POST /api/report` — same input, returns explainable report with coverage, evidence and timeline.
 - Invalid `{"sampleId":10}` intentionally produces **HTTP 422**, not `200`.
 
+## New: explainable dashboard and real browser tests
+
+The responsive Turkish dashboard now includes a data-derived schematic route (which does not connect unobserved telemetry gaps), an altitude comparison, evidence-linked alert markers, rule-level explanations and source-row traceability. **No real map provider or live-drone service is required.** The original sample APIs and deterministic rules are retained.
+
+The browser suite in `e2e/flight-evidence.spec.mjs` tests actual clicks on L1/L2/L8/L9/L10, invalid/valid CSV upload, download behavior, filters, chart rendering and mobile overflow using Chromium. GitHub Actions also uploads real screenshots as `flight-evidence-demo-screenshots`.
+
+**Verified CI:** https://github.com/airdropcucoinci/flight-evidence/actions/runs/39331554266 — Node regression suite **163/163**, Chromium **6/6**, Vitest/typecheck/security scan PASS. These are **not** TestSprite portal results.
+
+See [release evidence](RELEASE_EVIDENCE_2026_10_19.md), [judge demo script](DEMO_FOR_JUDGES.md), and [competition submission packet](HACKATHON_SUBMISSION_PACKET.md). The current PR branch is not yet verified as deployed; do not assume the existing main Render URL is a branch preview.
+
 ## Test and CI instructions
 
 Node.js 22+ recommended. In the repository root:
@@ -51,6 +61,8 @@ npm install --no-audit --no-fund
 npm run typecheck
 npm run test:node
 npm test
+npx playwright install --with-deps --only-shell chromium
+npm run test:e2e
 npm run test:contract
 npm run check:release
 npm start
