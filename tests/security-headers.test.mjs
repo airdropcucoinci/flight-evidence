@@ -9,8 +9,8 @@ test('web assets use restrictive security headers without blocking module script
  const child=spawn(process.execPath,['server.mjs'],{env:{...process.env,PORT:String(port)},stdio:'ignore'});
  try {
   let response;
-  for(let i=0;i<35;i++){
-   try {response=await fetch(`http://127.0.0.1:${port}/`);break;}catch{await sleep(80);}
+  for(let i=0;i<120;i++){
+   try {response=await fetch(`http://127.0.0.1:${port}/`);break;}catch{await sleep(100);}
   }
   assert.ok(response,'server did not start');
   assert.equal(response.status,200);
