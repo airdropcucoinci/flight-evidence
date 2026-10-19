@@ -1,102 +1,75 @@
-# Flight Evidence v0.6 — local demonstration
+# Flight Evidence — Drone Telemetry Consistency Lab
 
-Synthetic drone telemetry consistency checks (R1–R7). Findings are **not** proof of cyberattack, equipment failure or flight safety. Thresholds and airspace polygon are demonstration-only.
+**Live demo:** https://flight-evidence.onrender.com  
+**Repository:** https://github.com/airdropcucoinci/flight-evidence  
+**Release track:** TestSprite Hackathon Season 4 (October 16–22, 2026)  
+**Current application package version:** 4.28.0
 
-## Run
+Flight Evidence examines **synthetic** drone telemetry for rule-based consistency issues, provides explainable findings linked to source rows and timestamps, and exposes the same analysis through a browser interface and JSON API. It is a **training demonstration**, not cyberattack detection, legally admissible forensic evidence, flight certification, or an operational airspace service.
 
-Requires Node.js 20+ and TypeScript compiler. From this directory:
+## Live walkthrough (no account required)
 
-```sh
-npm install
-npm run build
-npm run test:smoke
+1. Open the [live demonstration](https://flight-evidence.onrender.com).
+2. Select **L1 – Temiz uçuş**: expected **TEMİZ** (no findings).
+3. Select **L2 – GPS sıçraması**: expected **KRİTİK**, rule **R1**.
+4. Select **L9 – Çoklu bulgu**: expected **KRİTİK** with **R1, R3 and R6**.
+5. Select **L8 – 40 m/s sınır**: expected **TEMİZ**. This fixture uses 39.999 m/s, immediately below the demonstration threshold; it does not assert exact mathematical equality.
+6. Select **L10 – Bozuk dosya**: expected **ANALİZ YAPILMADI** and a minimum 10 rows validation error. **This is a successful rejection of deliberately invalid test input**, not a broken button.
+7. Upload a valid CSV from [test-fixtures/valid-flight.csv](test-fixtures/valid-flight.csv); separately upload [test-fixtures/invalid-flight.csv](test-fixtures/invalid-flight.csv) to verify clear error handling. A rejected upload keeps the previous valid analysis visible and explicitly identifies that the new file was rejected.
+8. Test the critical/warning and R1–R7 filters, download sample CSV or a report JSON, and inspect the timeline, observation coverage, and evidence rows.
+
+## Deterministic demonstration rules
+
+| ID | Check | Demonstration rule |
+| --- | --- | --- |
+| R1 | GPS position jump | Derived speed **>40 m/s** |
+| R2 | GPS / barometer altitude discrepancy | `abs(gpsAlt - baroAlt) >30 m` for **3 consecutive** valid samples |
+| R3 | Frozen IMU | Same accelerometer/gyroscope readings for **15+ consecutive** rows while moving |
+| R4 | Timestamp consistency | Nonmonotonic, duplicate, or gap **>5 s** |
+| R5 | Battery / motor consistency | Sustained **≥80% motor** and constant voltage for **60 s**, respecting data gaps |
+| R6 | Example geofence | Observed route point/continuous segment intersects an **invented** polygon |
+| R7 | Example altitude ceiling | Barometric altitude **>120 m** |
+
+Thresholds and geofence are **synthetic demo values**, not legal limits or validated standards. GPS and barometric altitudes may use different datums; battery readings may legitimately remain stable; missing observations are never treated as a verified safe route. See source in `src/engine.ts` for exact implementation.
+
+## API and formats
+
+The server accepts CSV/JSON telemetry and prebuilt synthetic sample IDs. Valid telemetry columns include `t, lat, lon, gpsAlt, baroAlt, ax, gx, motor, voltage` (see parser and fixtures). File row count is limited to **5,000** and request size to **1 MB**.
+
+- `GET /health` — public service health.
+- `GET /api/samples` — ten built-in sample identifiers.
+- `POST /api/analyze` — JSON body such as `{"sampleId":2}`, returns findings and overall status.
+- `POST /api/report` — same input, returns explainable report with coverage, evidence and timeline.
+- Invalid `{"sampleId":10}` intentionally produces **HTTP 422**, not `200`.
+
+## Test and CI instructions
+
+Node.js 22+ recommended. In the repository root:
+
+```bash
+npm install --no-audit --no-fund
+npm run typecheck
+npm run test:node
 npm test
+npm run test:contract
+npm run check:release
 npm start
 ```
 
-Open http://localhost:3000 (or the port in `PORT`). `npm test` requires the Vitest development dependency to be installed. `test:smoke` uses Node's built-in test runner and exercises the API and core engine.
+The GitHub Actions workflow in `.github/workflows/ci.yml` executes type checking, Node integration/regression tests, Vitest, documented TestSprite scenario contract checks, and a release artifact scanner on pushes and pull requests. `TESTSPRITE_SCENARIOS.md` defines **14 intended TestSprite browser/API scenarios**. GitHub Actions results **are not TestSprite results**.
 
-## Scope and status
+**External TestSprite status:** a prior interactive portal run planned **44** tests: **29 passed, 2 failed, 13 blocked**. Following code/fixture fixes, a verified *new TestSprite portal run and a TestSprite GitHub App PR check* are still required. Do not claim the local CI passing suite is equivalent.
 
-CSV/JSON parsing, synthetic sample selection, core consistency rules, and local HTTP API are included. No public deployment, GitHub PR checks, TestSprite execution, or live drone integration has been performed. No actual restricted airspace is represented.
+**Contest PR:** https://github.com/airdropcucoinci/flight-evidence/pull/1
 
-## Known limitations
+## Security and limitations
 
-The 40 m/s boundary is exercised at 39.999 and 40.001 m/s rather than a bit-exact 40.000 measurement; altitude reference datum and battery voltage assumptions require external calibration for real-world use. The local demo is not a forensic-grade tool.
+- No live drone connections, SDR, radio interception, firmware access, surveillance, or real restricted-airspace polygons.
+- No sensitive data or credentials are required; tests use fictional coordinates and synthetic values.
+- Findings identify defined telemetry **inconsistencies**, not proof of manipulation, legal liability or drone compromise.
+- CSV/JSON values are validated; malformed telemetry produces an error and does not replace valid analysis.
+- Source/version history is maintained under `CHANGELOG.md` and `V4_*.md`. The UI's historical version label may differ from the `package.json` version; release notes are authoritative for code status.
 
-## v0.7 regression fixes
-- R4 now escalates from WARNING to CRITICAL when a backward timestamp follows an earlier duplicate.
-- JSON boolean values in numeric fields are rejected.
-- Added two regression tests; 8/8 Node smoke tests pass with TypeScript build.
-- Vitest not verified; dependency installation timed out. Live deployment and TestSprite PR integration remain outstanding.
+## Season 4 submission status
 
-## v0.8 doğrulama notu (14 Ekim 2026)
-- Test dosyasındaki eksik `parseTelemetry` importu düzeltildi.
-- `npm run build` başarılı.
-- `node --test tests/smoke.test.mjs`: 8/8 PASS.
-- Vitest, gerçek tarayıcı E2E, TestSprite, GitHub PR ve canlı dağıtım henüz doğrulanmadı.
-- L8 tam 40 m/s matematiksel eşitlik sınırı henüz kanıtlanmadı; alt/üst yakın değerler test edildi.
-
-
-## v0.9 changes (2026-10-14)
-- V0 input checks now reject motor command outside 0–100% and negative voltage.
-- Added deterministic Node regression tests for invalid physical inputs and near-40 m/s boundary.
-- Floating-point geodesic distance means a nominally exact 40 m/s test is not proof of bit-exact equality; test asserts against the actual computed speed.
-- External TestSprite, GitHub PR and live deployment remain unverified.
-
-## v1.0.0-rc.1 verification (14 Oct 2026)
-- Direct API `rows` input now passes through the same strict parser as JSON uploads; boolean numeric fields are rejected with HTTP 422.
-- Added API regression tests for malformed direct rows/CSV and 1 MB payload limit.
-- `npm run build`: PASS. `node --test tests/smoke.test.mjs`: 12/12 PASS.
-- Not yet verified: Vitest, browser E2E, public deployment, GitHub/TestSprite PR integration.
-
-
-## Release v1.2 deployment preparation
-
-Added `/health`, GitHub Actions workflow, Render blueprint and `DEPLOYMENT.md`. These are templates, **not proof of deployment or TestSprite integration**.
-
-## v1.5 — Evidence report (offline development)
-- Deterministic `createReport` helper returns a seven-rule PASS/WARNING/CRITICAL matrix and timestamped findings.
-- Browser offers downloadable JSON report; no network calls or personal data storage are added.
-- Reports are *consistency screening*, not proof of attack, physical fault, or legal responsibility.
-- Run `npm run test:node` to validate with Node built-in tests; Vitest and real browser E2E remain pending.
-
-## v1.6 continuity check
-R5 no longer treats a missing telemetry interval (>5 seconds) as continuous battery observation. See CHANGELOG.md and tests/continuity.test.mjs.
-
-### v2.0 report additions
-The downloaded JSON report includes `timeline` events and `dataQuality` counts. A data gap means the route was not observed; it does **not** establish a geofence violation or prove a cyberattack. All thresholds are demonstration values.
-
-### v2.1 evidence entries
-JSON reports include `evidence[]` with rule, time, source observation and applicable metric/threshold. These are traceability aids, not forensic proof or flight-safety certification.
-
-### Observation coverage (v2.2)
-`coverage.complete` is false if the log contains a time gap (>5 seconds), repeated timestamp, or backward timestamp. The `coverage.note` explains that PASS states apply only to observed data and demo rules. This is **not** a safety certification or proof that no anomaly occurred during missing intervals.
-
-### v2.3 coverage UI
-The interface now displays report coverage (complete/interrupted/invalid) using `data-testid="coverage-status"`. This is an observation-quality indicator, not safety certification.
-
-## v3.2 API
-`POST /api/report` accepts the same JSON body as `/api/analyze` and returns a structured evidence report. See `TESTSPRITE_SCENARIOS.md`.
-
-### Public demo resource limit
-Maximum 5,000 telemetry rows per analysis request. Larger datasets are rejected; this is a demo resource limit, not an aviation standard.
-
-
-## Pre-GitHub validation handoff
-See [PRE_GITHUB_CHECKLIST.md](PRE_GITHUB_CHECKLIST.md) for verified local tests and pending external setup.
-
-## v4.6 parser integrity
-Duplicate CSV headers are rejected; parser input is capped at 5000 rows. See V4_6_VALIDATION.md.
-
-
-## v4.8
-CSV quoted numeric cells supported; malformed quotes rejected. See V4_8_VALIDATION.md.
-
-
-## v4.9
-CSV quoted multiline records supported; see V4_9_VALIDATION.md.
-
-
-### v4.21
-JSON telemetry with UTF-8 BOM is supported; 138 Node.js tests pass locally. See V4_21_VALIDATION.md.
+This public repository, demo URL and PR alone **do not complete submission**. The organizer requires a generated TestSprite suite, a **TestSprite GitHub App result on a PR**, participation on Discord and X, and a **Discord #hackathon-submissions post** including the PR URL, live URL, TestSprite account name and email by **Oct 22, 2026 23:59 Pacific**. See [official rules](https://www.testsprite.com/hackathon-s4). Do not treat email/GitHub alone as an accepted alternative without written organizer approval.
