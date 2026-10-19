@@ -30,3 +30,13 @@ test('CSV fixtures include valid and invalid deterministic inputs',async()=>{
  assert.equal(rows.length,20);
  assert.throws(()=>parseTelemetry(invalid,'csv'),/invalid lat/);
 });
+
+// A rejected upload must never leave a previous successful report available.
+test('invalid upload resets prior analysis state and disables both exports',()=>{
+ const upload=source.slice(source.indexOf("byId('upload').addEventListener"),source.indexOf("byId('download').addEventListener"));
+ assert.match(upload,/catch\(err\)\{showInvalid\(err\)/);
+ assert.match(upload,/Yükleme başarısız:/);
+ const invalid=source.slice(source.indexOf('function showInvalid('),source.indexOf('function show(){'));
+ for(const marker of ["lastFindings=[]","status.dataset.status='INVALID'","byId('timeline').replaceChildren()","byId('rule-evidence').replaceChildren()","byId('report-json').setAttribute('disabled','')","byId('download').setAttribute('disabled','')"]){assert.ok(invalid.includes(marker),`missing invalid state cleanup: ${marker}`);}
+ assert.match(source,/byId\('download'\)\.removeAttribute\('disabled'\)/);
+});
