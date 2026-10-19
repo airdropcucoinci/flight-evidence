@@ -20,6 +20,20 @@ test('competition journeys: API status, determinism and failure handling',async(
    const b=await request('/api/analyze',{sampleId:Number(id)});
    assert.deepEqual(b.data,a.data,`L${id} deterministic`);
   }
+  // L8 is deliberately a valid, near-threshold CLEAN flight, not a missing scenario.
+  const l8=await request('/api/analyze',{sampleId:8});
+  assert.equal(l8.code,200);
+  assert.equal(l8.data.status,'CLEAN');
+  assert.deepEqual(l8.data.findings,[]);
+  const l8Report=await request('/api/report',{sampleId:8});
+  assert.equal(l8Report.code,200);
+  assert.equal(l8Report.data.assessment.code,'CLEAN');
+  // L10 is deliberately invalid and must never be silently relabeled CLEAN.
+  const l10=await request('/api/analyze',{sampleId:10});
+  assert.equal(l10.code,422);
+  assert.match(JSON.stringify(l10.data),/Minimum 10 rows required/);
+  const l10Report=await request('/api/report',{sampleId:10});
+  assert.equal(l10Report.code,422);
   const multi=await request('/api/analyze',{sampleId:9});
   assert.deepEqual(new Set(multi.data.findings.map(f=>f.rule)),new Set(['R1','R3','R6']));
   const invalid=await request('/api/analyze',{sampleId:10});
