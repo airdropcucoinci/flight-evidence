@@ -1,4 +1,6 @@
 import {test,expect} from '@playwright/test';
+import {mkdirSync} from 'node:fs';
+mkdirSync('competition-artifacts',{recursive:true});
 
 test('L1 clean: header, disclaimer, figures and source data render without page errors',async({page})=>{
  const errors=[];page.on('pageerror',error=>errors.push(error.message));
@@ -12,6 +14,7 @@ test('L1 clean: header, disclaimer, figures and source data render without page 
  await expect(page.locator('[data-testid="altitude-plot"] polyline')).not.toHaveCount(0);
  await expect(page.locator('[data-testid="rule-evidence"] > li')).toHaveCount(7);
  expect(errors).toEqual([]);
+ await page.screenshot({path:'competition-artifacts/L1-clean.png',fullPage:true});
 });
 
 test('L2 and L9: critical findings, source rows and independent rule filters work',async({page})=>{
@@ -31,6 +34,7 @@ test('L2 and L9: critical findings, source rows and independent rule filters wor
  await page.locator('[data-testid="reset-filters"]').click();
  await expect(page.locator('[data-testid="finding-R1"]')).toBeVisible();
  await expect(page.locator('[data-testid="finding-R6"]')).toBeVisible();
+ await page.screenshot({path:'competition-artifacts/L9-multi-finding.png',fullPage:true});
 });
 
 test('L8 boundary is clean; L10 intentional malformed record blocks downloads and recovers',async({page})=>{
@@ -44,6 +48,7 @@ test('L8 boundary is clean; L10 intentional malformed record blocks downloads an
  await expect(page.locator('[data-testid="report-json"]')).toBeDisabled();
  await expect(page.locator('#download')).toBeDisabled();
  await expect(page.locator('[data-testid="route-plot"] polyline')).toHaveCount(0);
+ await page.screenshot({path:'competition-artifacts/L10-invalid.png',fullPage:true});
  await page.locator('[data-testid="sample-L1"]').click();
  await expect(page.locator('[data-testid="overall-status"]')).toHaveText('TEMİZ');
  await expect(page.locator('[data-testid="report-json"]')).toBeEnabled();
@@ -79,4 +84,5 @@ test('Mobile viewport remains usable without horizontal document overflow',async
  await expect(page.locator('[data-testid="overall-status"]')).toHaveText('TEMİZ');
  const widths=await page.evaluate(()=>({document:document.documentElement.scrollWidth,window:window.innerWidth}));
  expect(widths.document).toBeLessThanOrEqual(widths.window+3);
+ await page.screenshot({path:'competition-artifacts/mobile-L1.png',fullPage:true});
 });
