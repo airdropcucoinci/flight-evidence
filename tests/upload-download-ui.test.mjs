@@ -13,7 +13,7 @@ test('uploaded file is validated before replacing current analysis',()=>{
  assert.match(handler,/const next=parseTelemetry/);
  assert.ok(handler.indexOf('analyze(next)')<handler.indexOf('current=next'));
  assert.match(handler,/Yalnızca CSV veya JSON/);
- assert.match(handler,/showInvalid\(err\)/);
+ assert.match(handler,/byId\('error'\)\.textContent/);
 });
 test('both browser downloads defer blob URL cleanup',()=>{
  assert.match(source,/flight-evidence-sample\.csv/);
@@ -32,11 +32,13 @@ test('CSV fixtures include valid and invalid deterministic inputs',async()=>{
 });
 
 // A rejected upload must never leave a previous successful report available.
-test('invalid upload resets prior analysis state and disables both exports',()=>{
+test('invalid upload preserves previous valid analysis while displaying an explicit rejection',()=>{
  const upload=source.slice(source.indexOf("byId('upload').addEventListener"),source.indexOf("byId('download').addEventListener"));
- assert.match(upload,/catch\(err\)\{showInvalid\(err\)/);
- assert.match(upload,/Yükleme başarısız:/);
- const invalid=source.slice(source.indexOf('function showInvalid('),source.indexOf('function show(){'));
- for(const marker of ["lastFindings=[]","status.dataset.status='INVALID'","byId('timeline').replaceChildren()","byId('rule-evidence').replaceChildren()","byId('report-json').setAttribute('disabled','')","byId('download').setAttribute('disabled','')"]){assert.ok(invalid.includes(marker),`missing invalid state cleanup: ${marker}`);}
- assert.match(source,/byId\('download'\)\.removeAttribute\('disabled'\)/);
+ assert.match(upload,/Yükleme reddedildi/);
+ assert.match(upload,/Önceki geçerli analiz korunuyor/);
+ assert.match(upload,/byId\('error'\)\.textContent/);
+ const failed=upload.slice(upload.indexOf('catch(err)'));
+ assert.doesNotMatch(failed,/current\s*=/);
+ assert.doesNotMatch(failed,/showInvalid\(/);
+ assert.doesNotMatch(failed,/report-json.*disabled/);
 });
