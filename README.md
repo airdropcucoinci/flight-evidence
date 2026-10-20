@@ -57,7 +57,7 @@ See [release evidence](RELEASE_EVIDENCE_2026_10_19.md), [judge demo script](DEMO
 Node.js 22+ recommended. In the repository root:
 
 ```bash
-npm install --no-audit --no-fund
+npm ci --no-audit --no-fund
 npm run typecheck
 npm run test:node
 npm test
