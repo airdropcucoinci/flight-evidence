@@ -39,6 +39,7 @@ test('invalid upload preserves previous valid analysis while displaying an expli
  assert.match(upload,/byId\('error'\)\.textContent/);
  const failed=upload.slice(upload.indexOf('catch(err)'));
  assert.doesNotMatch(failed,/current\s*=/);
- assert.doesNotMatch(failed,/showInvalid\(/);
+ assert.match(failed,/if\(hasValidAnalysis\)/);
+ assert.match(failed,/else\{showInvalid\(err\)/);
  assert.doesNotMatch(failed,/report-json.*disabled/);
 });
