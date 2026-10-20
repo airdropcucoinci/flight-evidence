@@ -60,7 +60,7 @@ jobs:
           git archive HEAD | tar -x -C "$RUNNER_TEMP/flight-evidence-release"
           cp dist/*.js "$RUNNER_TEMP/flight-evidence-release/dist/"
           (cd "$RUNNER_TEMP/flight-evidence-release" && node scripts/check-release-artifacts.mjs)
-          (cd "$RUNNER_TEMP/flight-evidence-release" && node --test --test-concurrency=4 tests/*.test.mjs)
+          (cd "$RUNNER_TEMP/flight-evidence-release" && node --test --test-concurrency=1 tests/*.test.mjs)
       - name: Package tested release snapshot
         run: |
           (cd "$RUNNER_TEMP/flight-evidence-release" && zip -qr "$GITHUB_WORKSPACE/flight-evidence-source.zip" .)
