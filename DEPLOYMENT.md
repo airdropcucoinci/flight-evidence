@@ -1,3 +1,9 @@
+# CURRENT DEPLOYMENT STATUS — 20 October 2026
+
+The instructions below describe the earlier bootstrap plan. Current project uses **npm ci**, a committed `package-lock.json`, and a verified GitHub Actions CI workflow. A public main demo address is documented, but its current availability and **PR branch-specific deployment** are not verified here. The outstanding Render operation is to deploy or obtain a URL serving the **exact PR #1 commit** for the TestSprite trigger. Do not substitute a main deployment for a PR preview. See [RELEASE_EVIDENCE_2026_10_20.md](RELEASE_EVIDENCE_2026_10_20.md).
+
+---
+
 # Flight Evidence — deployment and TestSprite checklist
 
 ## Local verification
