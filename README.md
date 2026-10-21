@@ -1,6 +1,7 @@
 # Flight Evidence — Drone Telemetry Consistency Lab
 
-**Live demo:** https://flight-evidence.onrender.com  
+**Competition PR preview:** https://flight-evidence-pr-1.onrender.com  
+**Main demo (separate deployment):** https://flight-evidence.onrender.com  
 **Repository:** https://github.com/airdropcucoinci/flight-evidence  
 **Release track:** TestSprite Hackathon Season 4 (October 16–22, 2026)  
 **Current application package version:** 4.28.0
@@ -9,7 +10,7 @@ Flight Evidence examines **synthetic** drone telemetry for rule-based consistenc
 
 ## Live walkthrough (no account required)
 
-1. Open the [live demonstration](https://flight-evidence.onrender.com).
+1. Open the [competition PR demonstration](https://flight-evidence-pr-1.onrender.com).
 2. Select **L1 – Temiz uçuş**: expected **TEMİZ** (no findings).
 3. Select **L2 – GPS sıçraması**: expected **KRİTİK**, rule **R1**.
 4. Select **L9 – Çoklu bulgu**: expected **KRİTİK** with **R1, R3 and R6**.
@@ -48,9 +49,9 @@ The responsive Turkish dashboard now includes a data-derived schematic route (wh
 
 The browser suite in `e2e/flight-evidence.spec.mjs` tests actual clicks on L1/L2/L8/L9/L10, invalid/valid CSV upload, download behavior, filters, chart rendering and mobile overflow using Chromium. GitHub Actions also uploads real screenshots as `flight-evidence-demo-screenshots`.
 
-**Verified CI:** https://github.com/airdropcucoinci/flight-evidence/actions/runs/39331554266 — Node regression suite **163/163**, Chromium **6/6**, Vitest/typecheck/security scan PASS. These are **not** TestSprite portal results.
+**Verified CI on 21 October 2026:** https://github.com/airdropcucoinci/flight-evidence/actions/runs/39491238129 — **163/163** Node regression/API tests, **41/41** Chromium tests, **17/17** Vitest tests, typecheck, scenario contract and release security scan passed on commit `c84c494b1bcf508f01c567440e8bb06f704d6060`. These are **not** TestSprite portal results.
 
-See [release evidence](RELEASE_EVIDENCE_2026_10_19.md), [judge demo script](DEMO_FOR_JUDGES.md), and [competition submission packet](HACKATHON_SUBMISSION_PACKET.md). The current PR branch is not yet verified as deployed; do not assume the existing main Render URL is a branch preview.
+See [release evidence](RELEASE_EVIDENCE_2026_10_19.md), [judge demo script](DEMO_FOR_JUDGES.md), and [competition submission packet](HACKATHON_SUBMISSION_PACKET.md). The competition build is served at https://flight-evidence-pr-1.onrender.com. The main Render URL is a separate deployment. PR #1 stays open; main has not been changed for this integration.
 
 ## Test and CI instructions
 
@@ -70,7 +71,9 @@ npm start
 
 The GitHub Actions workflow in `.github/workflows/ci.yml` executes type checking, Node integration/regression tests, Vitest, documented TestSprite scenario contract checks, and a release artifact scanner on pushes and pull requests. `TESTSPRITE_SCENARIOS.md` defines **14 intended TestSprite browser/API scenarios**. GitHub Actions results **are not TestSprite results**.
 
-**External TestSprite status:** a prior interactive portal run planned **44** tests: **29 passed, 2 failed, 13 blocked**. Following code/fixture fixes, a verified *new TestSprite portal run and a TestSprite GitHub App PR check* are still required. Do not claim the local CI passing suite is equivalent.
+**External TestSprite status, 21 October 2026:** the real GitHub App ran **44** tests on PR #1: **32 passed, 0 failed, 12 blocked**. [TestSprite's PR report](https://github.com/airdropcucoinci/flight-evidence/pull/1#issuecomment-6323885567). The TestSprite V3 commit status is **failure**, not green. Nine blocked cases cover uploaded files; three cover normal interactions including downloads. TestSprite's Free plan does not include test-file uploads. Missing fixtures and unresolved export automation prevent a complete pass; separate GitHub tests do not substitute for these cases.
+
+The active GitHub App trigger listens for **validate**, targets `https://flight-evidence-pr-{pr}.onrender.com`, and reports failures as a merge-blocking status. The manual TestSprite environment has also been pointed to the PR preview. One existing export/runtime test plan was clarified to use the real download controls and download-event waiting; any new result must be read from the portal/PR, not inferred from this edit.
 
 **Contest PR:** https://github.com/airdropcucoinci/flight-evidence/pull/1
 

@@ -1,53 +1,54 @@
 # Flight Evidence — Season 4 submission packet
 
-**Prepared:** 19 October 2026  
-**Submission status:** NOT SUBMITTED. Only submit after TestSprite PR results and Discord/X eligibility steps are confirmed.
+**Updated:** 21 October 2026
+**Submission status:** NOT SUBMITTED. The Discord stage is reserved for the user's Firefox session. A green TestSprite check has NOT been achieved.
 
-## Public links
+## Verified links and results
 
-- GitHub repository: https://github.com/airdropcucoinci/flight-evidence
-- Pull request (keep open for the actual TestSprite App check): https://github.com/airdropcucoinci/flight-evidence/pull/1
-- Demo URL: https://flight-evidence.onrender.com
-- GitHub Actions evidence: https://github.com/airdropcucoinci/flight-evidence/actions/runs/39314284032
-- Prior TestSprite run: **29 PASS, 2 FAIL, 13 BLOCKED out of 44**. These are NOT final passing results.
-- 14 manually specified acceptance cases: [TESTSPRITE_SCENARIOS.md](TESTSPRITE_SCENARIOS.md)
-- Sample upload files: [valid-flight.csv](test-fixtures/valid-flight.csv) and [invalid-flight.csv](test-fixtures/invalid-flight.csv).
+- Repository: https://github.com/airdropcucoinci/flight-evidence
+- PR #1 (open, unmerged): https://github.com/airdropcucoinci/flight-evidence/pull/1
+- Competition PR preview: https://flight-evidence-pr-1.onrender.com
+- Main demo, separate and unchanged: https://flight-evidence.onrender.com
+- GitHub CI: https://github.com/airdropcucoinci/flight-evidence/actions/runs/39491238129
+- GitHub CI on commit c84c494b1bcf508f01c567440e8bb06f704d6060: 163 Node regression/API tests, 41 Chromium tests, 17 Vitest tests, typecheck, scenario contract and security scan passed.
+- Real TestSprite PR report: https://github.com/airdropcucoinci/flight-evidence/pull/1#issuecomment-6323885567
+- Latest completed full TestSprite PR run at this checkpoint: **32 passed / 0 failed / 12 blocked / 44 total**. TestSprite V3 status: **failure**.
+- Previous full run: 29 passed / 2 failed / 13 blocked. Do not claim an all-green cycle.
+- Portal report: https://www.testsprite.com/dashboard-v3/o/39625253-9b9d-5533-ac49-7d8fddc2cb0c/projects/09d4374a-03fb-4b6c-8ead-97f09ba95e98/execution/705a4149-87de-4723-8b05-efd92165da86
 
-## Final independent quality gates
+## Completed integration
 
-1. Check the live URL loads, `GET /health` returns JSON `status: ok`, and `POST /api/analyze` with `{"sampleId":2}` returns CRITICAL/R1.
-2. In TestSprite Portal, under **Workspace Settings → Connections → Integrations**, connect GitHub App with access to this repository. In the project GitHub/CI area configure a trigger to run after the correct deployment is reachable; use **Send Test Event** on PR #1. Enable **Block PR until tests pass** where supported.
-3. **Do not mistake a main-branch Render URL for a PR preview.** A TestSprite PR trigger must point at a deployment of the changes under review, or an explicitly documented/tested branch environment. The current Render URL is known as the shared/main demo; PR preview availability is unverified.
-4. Re-check the 2 prior failed scenarios (L8 and L10) and 13 blocked scenarios. Provide the fixture files to any tests which need actual file uploads, and only rerun the complete suite after addressing blockers. In particular:
-   - L8 uses a **39.999 m/s** synthetic boundary fixture and must be CLEAN with no findings; the selection indicator must show L8.
-   - L10 is an **intentionally malformed sample** (only 5 records), expected to show `ANALİZ YAPILMADI` and API `422` with `Minimum 10 rows required`. It is *not* intended to analyze successfully.
-   - Rejecting an uploaded invalid CSV/JSON should clearly explain the rejection and keep the prior valid result explicitly identified (not quietly misattribute its report to the invalid file).
-5. Confirm the PR has a **TestSprite GitHub App comment or status check** tied to the correct deployment and run; a plain GitHub Actions check does not satisfy this evidence.
-6. Confirm both Discord membership and following TestSprite on X. The organizer explicitly rejected GitHub/email-only submissions for this hackathon (reply received 17 October).
-7. **Post in Discord `#hackathon-submissions` before October 22 at 23:59 Pacific Time** (October 23, 09:59 Turkey time), including PR, demo URL, TestSprite account name/email and optional video. Do not publicly post an account password, token or private API key.
+The existing project and suite are preserved. The active PR trigger is **validate**, with target pattern `https://flight-evidence-pr-{pr}.onrender.com`; merge-blocking status reporting is enabled. Manual TestSprite runs now target the same PR preview. No paid plan or free-trial subscription was accepted.
 
-## Paste-ready Discord submission (after QA gates)
+## Remaining verification limits
+
+Nine blocked test cases require uploaded files; three concern normal interactions including exports. The portal's Free plan blocks test-file uploads. The generated narrative's count of eight blocked tests conflicts with its counter and list of twelve; use twelve. A normal-interaction test unexpectedly attempted file-upload coverage and reported export-click timeouts. Its plan was clarified without removing export or runtime-error assertions. A manual diagnostic rerun began before the default environment changed, so that run uses the main demo and is not PR-head verification. Any new run must be checked separately.
+
+A direct browser check on the PR preview downloaded the selected L1 CSV (22,075 bytes, 301 data rows, expected nine columns) and JSON report (1,985 bytes, parsed successfully with coverage/evidence/rule fields). These are independent checks, not TestSprite passes.
+
+Fixtures remain available in the repository at [valid-flight.csv](test-fixtures/valid-flight.csv) and [invalid-flight.csv](test-fixtures/invalid-flight.csv). L10 is intentionally malformed and must be rejected; a built-in invalid sample does not replace a real invalid-file upload test. Do not remove blocked tests merely to obtain a green badge.
+
+## Official handoff
+
+Official rules: https://www.testsprite.com/hackathon-s4
+
+The page requires a public repository, live URL, generated TestSprite suite, PR carrying a TestSprite result, and a post to Discord **#hackathon-submissions** including PR URL, live URL, TestSprite name and email. Tests should pass. The current red status remains a submission-quality/eligibility risk; no acceptance is claimed. Confirm Discord's pinned final rules and any participation requirements before posting.
+
+Published deadline: **22 October 2026, 23:59 Pacific Daylight Time**, equivalent to **23 October 2026, 09:59 Türkiye time**. Final schedule is confirmed in Discord. A video is optional.
+
+## Discord text — review latest results before posting
 
 **TestSprite Hackathon Season 4 — Flight Evidence**
 
 **Project:** Flight Evidence — Drone Telemetry Consistency Lab
+**PR:** https://github.com/airdropcucoinci/flight-evidence/pull/1
+**Live PR demo:** https://flight-evidence-pr-1.onrender.com
+**Repository:** https://github.com/airdropcucoinci/flight-evidence
+**TestSprite account name:** airdropcu coinci
+**TestSprite account email:** [verify the exact TestSprite sign-in email before posting]
 
-**Public GitHub repository:** https://github.com/airdropcucoinci/flight-evidence
+Flight Evidence examines synthetic drone telemetry using seven deterministic consistency checks. Findings link back to input rows, timestamps and observation coverage. The dashboard includes ten reproducible scenarios, schematic route/altitude plots, CSV/JSON import, filters and report exports.
 
-**TestSprite-tested PR:** https://github.com/airdropcucoinci/flight-evidence/pull/1
+The TestSprite GitHub App automatically runs on the validate CI event against the PR deployment, with merge-blocking status reporting enabled. Latest completed full PR run at this checkpoint: **32 passed, 0 failed, 12 blocked out of 44**. The check remains red. Missing upload fixtures (file uploads are not included in our Free plan) and unresolved export automation block full verification. Separate GitHub CI passes 163 Node/API, 41 Chromium and 17 Vitest tests; these are not replacements for TestSprite results. Full evidence is in the PR.
 
-**Live demo:** https://flight-evidence.onrender.com
-
-**TestSprite account name:** [enter the exact public name shown in your portal]
-
-**TestSprite account email:** [enter the email used to sign in to TestSprite]
-
-Flight Evidence is an explainable, deterministic web app that examines synthetic drone flight records for GPS/speed, altitude, sensor, time, motor/battery and synthetic geofence consistency. Seven rule checks output traceable findings linked to source rows, timestamps and observation coverage. The interface includes 10 example scenarios, CSV/JSON upload, filters and an exportable evidence report.
-
-Our GitHub CI includes type checks, Node regression/API tests, Vitest and test-contract checks. TestSprite PR verification evidence should be linked from the PR once it runs.
-
-**Safety and scope:** Synthetic education-only demo; not a real-drone control tool, intrusion proof, regulatory geofence, forensic conclusion or flight safety certification.
-
----
-
-**Do not paste this document as a claim of final successful TestSprite tests.** Verify status on the actual PR before posting. 
+**Scope:** synthetic educational demo, not operational drone control, attack attribution, legal forensic evidence or flight safety certification.

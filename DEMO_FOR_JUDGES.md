@@ -1,6 +1,8 @@
 # Flight Evidence — 90-second judge demonstration
 
-**Use only after the PR branch is deployed and the TestSprite GitHub check is verified.** Current GitHub CI test evidence is not a replacement for TestSprite's own run.
+**Competition preview:** https://flight-evidence-pr-1.onrender.com
+
+**Verified status on 21 October 2026:** TestSprite's GitHub App check exists, with 32 passed / 0 failed / 12 blocked out of 44. Its status is failure. Show the actual result honestly; GitHub CI passing is not a replacement.
 
 ## Problem and differentiation
 
@@ -11,7 +13,7 @@ The competition contribution is the combination of:
 - explicit **observation coverage and uncertainty**, rather than pretending missing telemetry is clean;
 - readable, source-linked technical evidence;
 - a real web interface and API that can be checked against the same scenario expectations every time;
-- a verified browser regression suite (plus separate TestSprite PR verification, once completed).
+- a verified browser regression suite and a separate real TestSprite PR check with explicitly disclosed blockers.
 
 We do **not** claim a novel detection algorithm, a validated false-positive rate, a forensic conclusion, or a real restricted-airspace database.
 
@@ -26,7 +28,7 @@ We do **not** claim a novel detection algorithm, a validated false-positive rate
 | 51–62 | Apply CRITICAL and R3 filters, then reset | Only displayed items change; analysis and JSON report remain stable |
 | 62–72 | L8 (40 m/s sınır) | TEMİZ, explicitly selected L8; fixture is 39.999 m/s, not exact 40.000 |
 | 72–82 | L10 (Bozuk dosya) | ANALİZ YAPILMADI; minimum 10 rows error; downloads disabled |
-| 82–90 | Show GitHub PR checks | Actual GitHub CI and, **only when it exists**, the TestSprite App result |
+| 82–90 | Show GitHub PR checks | Actual GitHub CI and TestSprite App results; disclose the 12 blocked cases and red status |
 
 If a video is recorded, leave the sample names, actual findings and the error clearly visible. Do not edit a passing/failing badge into the recording.
 
@@ -54,6 +56,6 @@ Screenshots from GitHub Actions are generated automatically in the **flight-evid
 
 ## Official submission handoff
 
-Keep PR #1 open until the real TestSprite check appears. In TestSprite GitHub Action settings, choose the `validate` GitHub Actions completion event **and provide a reachable test URL for the PR code**. The production `main` Render deployment must **not** be mislabeled as the PR preview. On a free Render account, check whether previews are supported; if not, an isolated temporary web service deployed from the PR branch is a safer fallback than falsely testing a different commit.
+Keep PR #1 open. The active TestSprite trigger listens for `validate` and uses `https://flight-evidence-pr-{pr}.onrender.com`, with merge-blocking status enabled. Main Render remains a separate deployment.
 
-After verification, submit the PR URL, true live demo URL, TestSprite name/email and optional video to Discord `#hackathon-submissions`. GitHub/email-only submission was explicitly declined by the organizer.
+Discord submission has not been completed. The user will handle the Discord stage separately in Firefox. Include the PR URL, actual PR preview URL, TestSprite account name/email, and actual latest test results. Do not describe blocked tests as passed or claim eligibility has been confirmed. See [the current submission packet](HACKATHON_SUBMISSION_PACKET.md).
