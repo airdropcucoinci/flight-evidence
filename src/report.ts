@@ -18,7 +18,7 @@ export function createReport(rows:Point[], source='synthetic-or-user-provided') 
   });
   const coverage={complete:interruptedIntervals.length===0,interruptedIntervalCount:interruptedIntervals.length,affectedRules,note:interruptedIntervals.length?'missing or invalid time intervals make affected checks indeterminate when no finding is present.':'PASS only means no finding under demo thresholds; not a real-world safety clearance.'};
   const evidence=result.findings.map(f=>{
-    const index=rows.findIndex(r=>r.t===f.at);
+    const index=f.sourceRowIndex??rows.findIndex(r=>r.t===f.at);
     const current=index>=0?rows[index]:null;
     const previous=index>0?rows[index-1]:null;
     const sourceRows={currentIndex:index>=0?index:null,previousIndex:index>0?index-1:null,indexBase:0 as const};

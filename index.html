@@ -1,1 +1,84 @@
-<!doctype html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Flight Evidence v4.28</title><style>body{font:16px system-ui,sans-serif;max-width:1000px;margin:30px auto;padding:0 20px;background:#f5f7fb;color:#1d2b3c}h1{margin-bottom:4px}.notice{background:#fff3d9;padding:14px;border-left:4px solid #d78d00}.panel{background:white;padding:20px;border-radius:12px;margin:16px 0;box-shadow:0 2px 12px #0001}button{padding:10px;margin:5px;border:1px solid #b7c6d8;border-radius:7px;background:#eaf1ff;cursor:pointer}button:hover{background:#d3e4ff}#status{font-weight:800;font-size:30px}#status[data-status="CRITICAL"]{color:#b62331}#status[data-status="WARNING"]{color:#a66b00}#status[data-status="CLEAN"]{color:#087749}#error{color:#b62331}li{margin:8px 0;overflow-wrap:anywhere}</style></head><body><h1>Flight Evidence</h1><p>Drone uçuş kayıtlarında fiziksel tutarlılık incelemesi · v4.28 sentetik eğitim demosu</p><p class="notice">Sentetik örnek kayıtlarla eğitim demosu. Bulgular tutarsızlık işaretidir; saldırı, kusur veya hukuki sorumluluk kanıtı değildir.</p><section class="panel"><h2>Örnek kayıtlar</h2><div id="examples"></div><p id="selected-scenario" data-testid="selected-scenario" role="status">Seçili senaryo: L1 · Temiz uçuş</p><label>CSV veya JSON dosyası: <input id="upload" type="file" accept=".csv,.json"></label><p><button id="download">Seçili kaydı CSV indir</button> <button id="report-json" data-testid="report-json">Denetim raporunu JSON indir</button></p></section><section class="panel"><h2>Genel durum</h2><div id="status" data-testid="overall-status"></div><p id="assessment" data-testid="assessment-status" role="status"></p><p id="error" role="alert"></p><h2>Gözlem kapsamı</h2><p id="coverage" data-testid="coverage-status" role="status"></p><h2>Bulgular</h2><label for="finding-filter">Bulgu filtresi: </label><select id="finding-filter" data-testid="finding-filter"><option value="ALL">Tümü</option><option value="CRITICAL">Kritik</option><option value="WARNING">Dikkat</option></select><label for="rule-filter">Kural: </label><select id="rule-filter" data-testid="rule-filter"><option value="ALL">Tüm kurallar</option><option value="R1">R1</option><option value="R2">R2</option><option value="R3">R3</option><option value="R4">R4</option><option value="R5">R5</option><option value="R6">R6</option><option value="R7">R7</option></select><button id="reset-filters" data-testid="reset-filters" type="button">Filtreleri sıfırla</button><p id="finding-count" data-testid="finding-count" role="status"></p><ul id="findings"></ul><h2>Kurallar ve ölçüm gerekçeleri</h2><p>PASS yalnızca gözlemlenen veriler için geçerlidir; veri boşlukları varsa tam uçuş onayı değildir.</p><ul id="rule-evidence" data-testid="rule-evidence"></ul><h2>Olay zaman çizelgesi</h2><p>Veri boşlukları gözlemlenmeyen rotayı gösterir; ihlal kanıtı değildir.</p><ol id="timeline" data-testid="timeline"></ol></section><script type="module" src="./dist/browser.js"></script></body></html>
+<!doctype html>
+<html lang="tr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Flight Evidence: sentetik drone uçuş telemetrisi üzerinde açıklanabilir yedi tutarlılık denetimi ve testlenebilir kanıt raporu.">
+<title>Flight Evidence | Flight Data Consistency Lab</title>
+<style>
+:root{color-scheme:dark;--bg:#07111e;--panel:#101f30;--edge:#29425c;--soft:#9fb4ca;--ink:#f0f7ff;--mint:#53dec1;--amber:#fbc676;--red:#ff798a;--blue:#7db6ff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at 85% -8%,#123d59 0,transparent 35%),var(--bg);color:var(--ink);max-width:1300px;margin:0 auto;padding:24px 24px 55px}
+header{display:flex;justify-content:space-between;gap:18px;align-items:center;border-bottom:1px solid var(--edge);padding-bottom:20px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--mint)}
+h1{font-size:clamp(29px,4.4vw,48px);letter-spacing:-.045em;line-height:1.08;margin:10px 0}
+h2{font-size:18px;margin:0 0 12px;letter-spacing:-.02em}h3{font-size:15px;margin:18px 0 8px;color:var(--soft)}
+p{margin:6px 0 12px}.subhead,.meta{color:var(--soft)}.topbadge{border:1px solid #4b7b88;border-radius:30px;padding:7px 12px;font-size:12px;color:var(--mint);white-space:nowrap}
+.notice{background:#3a2918;color:#ffe5b7;padding:13px 17px;border-left:4px solid var(--amber);margin:19px 0 21px;border-radius:6px;font-size:13px}
+.dashboard{display:grid;grid-template-columns:1.12fr .88fr;gap:17px}.panel{background:linear-gradient(135deg,#122338,#0c1c2c);border:1px solid var(--edge);border-radius:16px;padding:22px;min-width:0;box-shadow:0 12px 34px #02091444}.wide{grid-column:1/-1}
+.sample-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:17px}
+button{font:inherit;cursor:pointer;border:1px solid #375579;border-radius:8px;padding:9px 12px;color:var(--ink);background:#1a344e;transition:background .16s,border-color .16s}
+button:hover:not(:disabled),button:focus-visible{background:#295273;border-color:var(--mint)}
+button[aria-pressed="true"]{background:#153f48;border-color:var(--mint);color:#b4ffee}
+button:disabled{opacity:.46;cursor:not-allowed}
+#examples button{font-size:13px;padding:8px 10px}
+label{font-size:13px;color:var(--soft)}input,select{font:inherit;accent-color:var(--mint)}input[type=file]{max-width:100%;color:var(--ink);padding:8px 0}
+select{border:1px solid #425f7e;background:#0c1f32;color:var(--ink);border-radius:7px;padding:8px}
+.actions,.filters,.stats{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.actions{margin-top:12px}.actions button{background:#244566}.selected{color:#e0effe;font-weight:600}
+.status-box{display:grid;gap:7px;min-height:110px}
+#status{font-weight:800;font-size:clamp(28px,3.6vw,46px);line-height:1.15;letter-spacing:-.035em}
+#status[data-status=CLEAN]{color:var(--mint)}#status[data-status=WARNING]{color:var(--amber)}#status[data-status=CRITICAL],#status[data-status=INVALID]{color:var(--red)}
+.stats{margin-top:12px}.stat{min-width:105px;background:#0d2233;border:1px solid var(--edge);border-radius:9px;padding:9px 12px;font-size:12px;color:var(--soft)}
+.stat b{display:block;font-size:22px;color:var(--ink);font-variant-numeric:tabular-nums}
+#error{color:#ffbbc4;font-weight:600;overflow-wrap:anywhere}
+.mini{color:var(--soft);font-size:12px}.visuals{display:grid;grid-template-columns:1fr 1fr;gap:15px}.chart{border:1px solid var(--edge);background:#0b1a29;border-radius:12px;padding:14px;min-width:0}.chart h3{margin:0 0 5px}
+.chart svg{display:block;width:100%;height:auto;min-height:160px;background:#081826;border-radius:8px}
+.track-line{fill:none;stroke:var(--blue);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.alt-gps{fill:none;stroke:var(--mint);stroke-width:2;stroke-linecap:round}.alt-baro{fill:none;stroke:var(--amber);stroke-width:2;stroke-linecap:round}
+.event-mark{fill:var(--red);stroke:#07111e;stroke-width:2}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:6px;font-size:11px;color:var(--soft)}.legend b{color:var(--mint)}
+#finding-count{color:var(--mint);font-size:13px}ul,ol{padding-left:21px;margin:9px 0}li{margin:8px 0;overflow-wrap:anywhere}
+#rule-evidence{list-style:none;padding-left:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#rule-evidence li{background:#0d2134;border:1px solid var(--edge);border-left:3px solid #65819f;padding:11px 13px;border-radius:8px;font-size:13px;margin:0}
+#rule-evidence li[data-state=PASS]{border-left-color:var(--mint)}#rule-evidence li[data-state=CRITICAL]{border-left-color:var(--red)}#rule-evidence li[data-state=WARNING]{border-left-color:var(--amber)}
+#rule-evidence li[data-state=INDETERMINATE]{border-left-color:var(--blue)}
+#rule-evidence li div{font-size:11px;color:var(--soft);margin-top:5px}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+footer{margin:24px 0;color:var(--soft);font-size:12px}
+a{color:#9fceff}a:hover{color:#fff}
+:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+@media(max-width:840px){.dashboard,.visuals{grid-template-columns:1fr}#rule-evidence{grid-template-columns:1fr}header{align-items:start}}
+@media(max-width:450px){body{padding:15px}.panel{padding:15px}.topbadge{font-size:10px}h1{font-size:30px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><div><div class="eyebrow">FLIGHT EVIDENCE / TELEMETRY LAB</div><h1>Flight Evidence</h1><p class="subhead">Uçuş verilerini karşılaştır. Tutarsızlıkları açıkla. Kaynağa kadar izle.</p></div><span class="topbadge">SENTETİK DEMO · v4.28</span></header>
+<main>
+<p class="notice" role="note">Sentetik örnek kayıtlarla eğitim demosu. Bulgular tutarsızlık işaretidir; saldırı, kusur veya hukuki sorumluluk kanıtı değildir. Kullanılan eşikler ve bölge hayalîdir.</p>
+<div class="dashboard">
+<section class="panel" aria-labelledby="samples-title"><div class="eyebrow">01 / GİRDİ</div><h2 id="samples-title">Örnek kayıtlar</h2><p class="mini">10 tekrarlanabilir senaryo · L10 bilerek bozuk kayıt içerir.</p><div id="examples" class="sample-grid" aria-label="Örnek uçuş senaryoları"></div>
+<p id="selected-scenario" data-testid="selected-scenario" role="status" class="selected">Seçili senaryo: L1 · Temiz uçuş</p>
+<label for="upload">CSV veya JSON dosyası:</label><input id="upload" type="file" accept=".csv,.json" aria-describedby="upload-note">
+<p id="upload-note" class="mini">Azami 5.000 kayıt ve 1 MB. Geçersiz dosya önceki geçerli analizi değiştirmez.</p>
+<div class="actions"><button id="download" type="button">Seçili kaydı CSV indir</button><button id="report-json" type="button" data-testid="report-json">Denetim raporunu JSON indir</button></div></section>
+<section class="panel" aria-labelledby="result-title"><div class="eyebrow">02 / DEĞERLENDİRME</div><h2 id="result-title">Genel durum</h2>
+<div class="status-box"><div id="status" data-testid="overall-status" role="status" aria-live="polite"></div><p id="assessment" data-testid="assessment-status" role="status"></p><p id="error" role="alert"></p></div>
+<div class="stats"><div class="stat">Veri satırı <b id="row-count" data-testid="row-count">—</b></div><div class="stat">Bulgu sayısı <b id="total-count" data-testid="total-count">—</b></div><div class="stat">Kural sayısı <b>7</b></div></div>
+<h3>Gözlem kapsamı</h3><p id="coverage" data-testid="coverage-status" role="status"></p>
+<p class="mini">TEMİZ yalnızca gözlemlenen kayıtların tanımlı demo kontrollerinden geçtiği anlamına gelir.</p></section>
+<section class="panel wide" aria-labelledby="visual-title"><div class="eyebrow">03 / GÖRSEL İNCELEME</div><h2 id="visual-title">Rota ve irtifa profili</h2>
+<div class="visuals"><div class="chart"><h3>Kaydedilmiş rota — şematik görünüm</h3><svg id="route-plot" data-testid="route-plot" viewBox="0 0 800 240" role="img" aria-label="Kaydedilmiş konum noktalarının göreli görünümü"></svg><p class="mini">Coğrafi harita değildir. Kayıt boşluklarında noktalar birleştirilmez.</p><div class="legend">— <span>Rota</span><span>● Olay anı</span></div></div>
+<div class="chart"><h3>GPS ve barometre irtifası</h3><svg id="altitude-plot" data-testid="altitude-plot" viewBox="0 0 800 240" role="img" aria-label="GPS ve barometrik irtifa çizgileri"></svg><p class="mini">Kayıt sırasına göre gösterim; iki sensörün referans sistemleri farklı olabilir.</p><div class="legend"><span><b>━</b> GPS</span><span style="color:var(--amber)">━ Barometre</span><span>● Olay anı</span></div></div></div></section>
+<section class="panel wide" aria-labelledby="findings-title"><div class="eyebrow">04 / BULGULAR</div><h2 id="findings-title">Denetim bulguları ve kural kanıtları</h2>
+<div class="filters"><label for="finding-filter">Önem derecesi:</label><select id="finding-filter" data-testid="finding-filter"><option value="ALL">Tümü</option><option value="CRITICAL">Kritik</option><option value="WARNING">Dikkat</option></select>
+<label for="rule-filter">Kural:</label><select id="rule-filter" data-testid="rule-filter"><option value="ALL">Tüm kurallar</option><option value="R1">R1</option><option value="R2">R2</option><option value="R3">R3</option><option value="R4">R4</option><option value="R5">R5</option><option value="R6">R6</option><option value="R7">R7</option></select>
+<button id="reset-filters" data-testid="reset-filters" type="button">Filtreleri sıfırla</button></div>
+<p id="finding-count" data-testid="finding-count" role="status"></p><ul id="findings"></ul>
+<h3>Yedi kuralın ölçüm ve kaynak bilgileri</h3><p class="mini">PASS: yalnızca gözlemlenen veride eşik aşımı bulunmadı. INDETERMINATE: gözlem kesintisi değerlendirmeyi sınırlar.</p>
+<ul id="rule-evidence" data-testid="rule-evidence"></ul></section>
+<section class="panel wide" aria-labelledby="timeline-title"><div class="eyebrow">05 / ZAMAN ÇİZELGESİ</div><h2 id="timeline-title">Olay zaman çizelgesi</h2>
+<p class="mini">Kayıt kesintilerindeki bilinmeyen uçuş davranışı otomatik olarak tahmin edilmez.</p><ol id="timeline" data-testid="timeline"></ol></section>
+</div>
+</main>
+<footer>Flight Evidence · Açıklanabilir sentetik telemetri testi · <a href="https://github.com/airdropcucoinci/flight-evidence" rel="noopener noreferrer">Kaynak kod deposu</a> · Uçuş güvenliği sertifikasyonu değildir.</footer>
+<script type="module" src="./dist/browser.js"></script>
+</body></html>

@@ -1,0 +1,534 @@
+# TestSprite test plan
+#
+# How to edit:
+#   - Change a test case by editing its "name", "description", "priority" or "steps".
+#   - Add a test case anywhere; leave out "id" (or use a new one).
+#   - Move a test case by placing it under another use case.
+#   - Add a use case with a new "useCase" block; "slug" is optional.
+#   - Remove a test case or a whole use case by deleting it from this file.
+#   - Steps: a plain line is an action, "assert: ..." checks the expected result.
+#
+# Save when you are done to apply your changes.
+
+# ----------------------------------------------------------------------------
+
+useCases:
+  - useCase: Flight Scenario Selection & Status
+    slug: FLG
+    testCases:
+      - id: FLG-001
+        priority: High
+        name: Select each sample flight scenario
+        description: Validate that all ten sample flight scenarios can be selected and the view updates for each selection.
+        steps:
+          - Navigate to the Flight Evidence demo page
+          - Click the sample flight scenario for L1
+          - Click the sample flight scenario for L2
+          - Click the sample flight scenario for L3
+          - Click the sample flight scenario for L4
+          - Click the sample flight scenario for L5
+          - Click the sample flight scenario for L6
+          - Click the sample flight scenario for L7
+          - Click the sample flight scenario for L8
+          - Click the sample flight scenario for L9
+          - Click the sample flight scenario for L10
+          - assert: Verify the selected scenario changes successfully for each sample flight selection
+          - assert: Verify the main assessment area updates after switching scenarios
+      - id: FLG-002
+        priority: High
+        name: Verify the clean L1 result
+        description: Validate that L1 shows a clean overall result with no anomaly findings.
+        steps:
+          - Navigate to the Flight Evidence demo page
+          - Click the sample flight scenario for L1
+          - assert: Verify the overall status indicates a clean result
+          - assert: Verify no anomaly findings are shown for the selected scenario
+      - id: FLG-003
+        priority: High
+        name: Verify the L2 GPS speed anomaly
+        description: Validate that L2 reports a GPS-related speed anomaly in the findings.
+        steps:
+          - Navigate to the Flight Evidence demo page
+          - Click the sample flight scenario for L2
+          - assert: Verify the overall status indicates an issue is present
+          - assert: Verify a GPS speed anomaly is shown in the findings
+      - id: FLG-004
+        priority: High
+        name: Verify the L9 critical multi-finding result
+        description: Validate that L9 shows a critical overall result with exactly the expected three findings.
+        steps:
+          - Navigate to the Flight Evidence demo page
+          - Click the sample flight scenario for L9
+          - assert: Verify the overall status is critical
+          - assert: Verify exactly three findings are shown
+          - assert: Verify the findings include a speed threshold rule, an IMU freeze rule, and a synthetic geofence intersection rule
+      - id: FLG-005
+        priority: Medium
+        name: Filter findings by severity and rule
+        description: Validate that findings can be narrowed by severity and rule, and the filters can be reset back to the full set.
+        steps:
+          - Navigate to the Flight Evidence demo page
+          - Click the sample flight scenario for L9
+          - Select a severity filter
+          - Select a rule filter
+          - assert: Verify only findings matching the selected severity and rule are shown
+          - Reset the filters
+          - assert: Verify the full finding set is restored
+      - id: FLG-006
+        priority: Medium
+        name: Verify observation coverage and evidence references
+        description: Validate that the selected scenario shows observation coverage information and source-row references for evidence.
+        steps:
+          - Navigate to the Flight Evidence demo page
+          - Click the sample flight scenario for L9
+          - assert: Verify observation coverage information is displayed
+          - assert: Verify findings include source-row references to supporting evidence
+      - id: FLG-007
+        priority: High
+        name: Upload a CSV file and download reports
+        description: Validate CSV upload behavior, invalid-file handling, and CSV and JSON report downloads from the selected scenario.
+        steps:
+          - Navigate to the Flight Evidence demo page
+          - Upload a valid CSV file
+          - assert: Verify the uploaded file is accepted and the selected record updates
+          - Upload an invalid file type
+          - assert: Verify an invalid-file error is shown
+          - Click the download control for the selected record CSV
+          - Click the download control for the audit JSON report
+          - assert: Verify both downloads are initiated successfully
+      - id: FLG-008
+        priority: Medium
+        name: Use the interface without JavaScript errors
+        description: Validate that normal scenario switching and export interactions complete without visible JavaScript errors.
+        steps:
+          - Navigate to the Flight Evidence demo page
+          - Click the sample flight scenario for L1
+          - Click the sample flight scenario for L2
+          - Click the sample flight scenario for L9
+          - Scroll through the main findings content
+          - Click the download control for the selected record CSV
+          - Click the download control for the audit JSON report
+          - assert: Verify the page remains usable during normal interactions
+          - assert: Verify no JavaScript error is displayed during the workflow
+  - useCase: Findings, Rules & Filters
+    slug: BUL
+    testCases:
+      - id: BUL-001
+        priority: High
+        name: Select each sample flight scenario
+        description: Verify that all 10 sample flight scenarios can be selected from the demo records.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L1 sample flight scenario
+          - assert: Verify the selected record updates to the L1 scenario
+          - Select the L2 sample flight scenario
+          - assert: Verify the selected record updates to the L2 scenario
+          - Select the L3 sample flight scenario
+          - Select the L4 sample flight scenario
+          - Select the L5 sample flight scenario
+          - Select the L6 sample flight scenario
+          - Select the L7 sample flight scenario
+          - Select the L8 sample flight scenario
+          - Select the L9 sample flight scenario
+          - Select the L10 sample flight scenario
+          - assert: Verify the selected record updates to the L10 scenario
+      - id: BUL-002
+        priority: High
+        name: L1 shows a clean result with no findings
+        description: Verify that the L1 sample flight renders a clean evaluation with no anomaly findings.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L1 sample flight scenario
+          - assert: Verify the overall status is clean
+          - assert: Verify no findings are shown for the selected flight
+      - id: BUL-003
+        priority: High
+        name: L2 detects a GPS speed anomaly
+        description: Verify that the L2 sample flight produces a GPS speed-related anomaly finding.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L2 sample flight scenario
+          - assert: Verify the overall status indicates an anomaly
+          - assert: Verify a GPS speed anomaly finding is shown
+      - id: BUL-004
+        priority: High
+        name: L9 shows critical status with three expected findings
+        description: Verify that the L9 sample flight is marked critical and lists exactly the expected three findings.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L9 sample flight scenario
+          - assert: Verify the overall status is critical
+          - assert: Verify exactly three findings are shown
+          - assert: Verify the findings include a speed threshold rule result, an IMU freeze rule result, and a synthetic geofence intersection rule result
+      - id: BUL-005
+        priority: Medium
+        name: Filter findings by severity and rule, then reset filters
+        description: Verify that findings can be narrowed by severity and rule and then restored using the reset control.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L9 sample flight scenario
+          - Choose a severity filter that narrows the findings
+          - Choose a rule filter that further narrows the findings
+          - assert: Verify only findings matching both filters are shown
+          - Reset the filters
+          - assert: Verify the full unfiltered set of findings is shown again
+      - id: BUL-006
+        priority: Medium
+        name: Observation coverage and evidence references are shown
+        description: Verify that the selected flight shows observation coverage information and source-row references for evidence.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L2 sample flight scenario
+          - assert: Verify observation coverage information is displayed
+          - assert: Verify finding details include source-row references for the evidence
+      - id: BUL-007
+        priority: High
+        name: Upload CSV and export CSV and JSON reports
+        description: Verify that a CSV file can be uploaded and that CSV and JSON exports are available for the selected record.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Upload a valid CSV flight file
+          - assert: Verify the uploaded flight is evaluated and displayed
+          - Download the selected record as CSV
+          - Download the audit report as JSON
+          - assert: Verify both exports are available from the selected flight
+      - id: BUL-008
+        priority: Medium
+        name: Reject an invalid upload file
+        description: Verify that uploading a non-CSV/non-JSON file surfaces a validation error without changing the current evaluation.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Upload an invalid file type
+          - assert: Verify a file validation error is shown
+          - assert: Verify the current flight evaluation remains available
+      - id: BUL-009
+        priority: Low
+        name: Normal interactions complete without JavaScript errors
+        description: Verify that common demo interactions remain usable and do not surface JavaScript errors during normal use.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L1 sample flight scenario
+          - Select the L2 sample flight scenario
+          - Open the findings filters and change a filter value
+          - Reset the filters
+          - Upload a valid CSV flight file
+          - assert: Verify the demo remains interactive and usable after the normal actions
+          - assert: Verify no JavaScript error is surfaced during the interaction
+  - useCase: Observation Coverage & Evidence References
+    slug: OBS
+    testCases:
+      - id: OBS-001
+        priority: High
+        name: Select each sample flight scenario
+        description: Verifies that all 10 synthetic sample flight scenarios can be selected from the demo.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L1 sample flight scenario
+          - Select the L2 sample flight scenario
+          - Select the L3 sample flight scenario
+          - Select the L4 sample flight scenario
+          - Select the L5 sample flight scenario
+          - Select the L6 sample flight scenario
+          - Select the L7 sample flight scenario
+          - Select the L8 sample flight scenario
+          - Select the L9 sample flight scenario
+          - Select the L10 sample flight scenario
+          - assert: Verify each sample flight can be selected and the scenario changes after each selection
+      - id: OBS-002
+        priority: High
+        name: L1 shows a clean result with no findings
+        description: Verifies that the clean sample flight returns a clean overall status and no anomaly findings.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L1 sample flight scenario
+          - assert: Verify the overall status is clean
+          - assert: Verify no anomaly findings are displayed
+      - id: OBS-003
+        priority: High
+        name: L2 detects a GPS speed anomaly
+        description: Verifies that the GPS anomaly sample returns a critical outcome with the expected GPS speed finding.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L2 sample flight scenario
+          - assert: Verify the overall status is critical
+          - assert: Verify a GPS speed anomaly finding is displayed
+      - id: OBS-004
+        priority: High
+        name: L9 shows the expected critical multi-finding result
+        description: Verifies that the multi-finding sample returns critical status with the three expected findings only.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L9 sample flight scenario
+          - assert: Verify the overall status is critical
+          - assert: Verify exactly three findings are displayed
+          - assert: Verify the findings include the speed threshold rule, the IMU freeze rule, and the synthetic geofence intersection rule
+      - id: OBS-005
+        priority: Medium
+        name: Filter findings by severity and rule, then reset filters
+        description: Verifies that findings can be narrowed by severity and rule and restored with a filter reset.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L9 sample flight scenario
+          - Choose a severity filter that narrows the findings
+          - Choose a rule filter that narrows the findings
+          - assert: Verify only findings matching the selected severity and rule are shown
+          - Reset the filters
+          - assert: Verify the full set of findings is restored
+      - id: OBS-006
+        priority: High
+        name: Review observation coverage and evidence references
+        description: Verifies that coverage notes, timeline entries, and source-row evidence references are shown for a finding.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L2 sample flight scenario
+          - Scroll to the observation coverage section
+          - Scroll to the evidence and timeline section
+          - assert: Verify coverage information is displayed for the selected flight
+          - assert: Verify source-row evidence references are displayed for the finding
+      - id: OBS-007
+        priority: Medium
+        name: Upload a valid CSV and export CSV and JSON reports
+        description: Verifies that a valid CSV can be uploaded and the selected record can be exported as CSV and JSON reports.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Upload a valid CSV flight file
+          - Wait for the uploaded flight to be evaluated
+          - Download the selected record as CSV
+          - Download the audit report as JSON
+          - assert: Verify the uploaded flight is evaluated successfully
+          - assert: Verify both exports are available after upload
+      - id: OBS-008
+        priority: Medium
+        name: Show an error for an invalid uploaded file
+        description: Verifies that uploading a non-CSV file surfaces a validation error in the demo.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Upload an invalid file type
+          - assert: Verify a file validation error is displayed
+      - id: OBS-009
+        priority: High
+        name: Use the demo without JavaScript errors
+        description: Verifies that normal navigation, sample selection, filtering, and export actions do not surface JavaScript errors.
+        steps:
+          - "Navigate to the configured PR deployment URL. Run only this test plan: sample selection, filters, CSV/JSON exports and runtime errors. This test does not require any file upload."
+          - Select the L1 sample flight scenario
+          - Select the L2 sample flight scenario
+          - Open the findings filter controls
+          - Reset the filters
+          - 'Keep valid L2 selected (not L10). Wait until button #download with accessible name "Seçili kaydı CSV indir" is enabled. Start waiting for a download BEFORE clicking that button, then capture the downloaded CSV. This triggers a file download, not page navigation. Verify the downloaded file is nonempty CSV.'
+          - 'Wait until button #report-json with accessible name "Denetim raporunu JSON indir" is enabled. Start waiting for a download BEFORE clicking, then capture the JSON report. Do not wait for page navigation. Parse the downloaded JSON to verify valid report content.'
+          - assert: Verify the UI remains usable throughout the interactions
+          - assert: Verify no JavaScript errors occur during the workflow
+  - useCase: File Upload & Report Export
+    slug: UPL
+    testCases:
+      - id: UPL-001
+        priority: High
+        name: Select each sample flight scenario
+        description: Verify that all 10 sample flight scenarios can be selected from the demo.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L1 sample flight scenario
+          - Select the L2 sample flight scenario
+          - Select the L3 sample flight scenario
+          - Select the L4 sample flight scenario
+          - Select the L5 sample flight scenario
+          - Select the L6 sample flight scenario
+          - Select the L7 sample flight scenario
+          - Select the L8 sample flight scenario
+          - Select the L9 sample flight scenario
+          - Select the L10 sample flight scenario
+          - assert: Verify the selected record updates successfully for each sample flight scenario
+      - id: UPL-002
+        priority: High
+        name: L1 shows a clean result with no findings
+        description: Verify that the L1 sample flight displays a clean outcome without anomaly findings.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L1 sample flight scenario
+          - assert: Verify the overall status indicates a clean result
+          - assert: Verify no findings are shown for the selected record
+      - id: UPL-003
+        priority: High
+        name: L2 detects a GPS speed anomaly
+        description: Verify that the L2 sample flight reports a GPS speed anomaly finding.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L2 sample flight scenario
+          - assert: Verify the overall status indicates a critical result
+          - assert: Verify a GPS speed anomaly finding is shown
+      - id: UPL-004
+        priority: High
+        name: L9 shows exactly three critical findings
+        description: Verify that the L9 sample flight reports critical status with the expected three findings only.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L9 sample flight scenario
+          - assert: Verify the overall status indicates a critical result
+          - assert: Verify exactly three findings are shown for the selected record
+          - assert: Verify the findings include the speed threshold rule, the IMU freeze rule, and the synthetic geofence intersection rule
+      - id: UPL-005
+        priority: High
+        name: Filter findings by severity and rule, then reset filters
+        description: Verify that findings can be narrowed by severity and rule and then restored with filter reset.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L9 sample flight scenario
+          - Filter findings by severity to show only critical findings
+          - Filter findings by a specific rule
+          - assert: Verify only findings matching the selected severity and rule remain visible
+          - Reset the filters
+          - assert: Verify the full set of findings is visible again
+      - id: UPL-006
+        priority: Medium
+        name: Review observation coverage and evidence references
+        description: Verify that observation coverage information and evidence source-row references are available for a selected record.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L9 sample flight scenario
+          - Scroll to the observation coverage section
+          - Scroll to the evidence details for the findings
+          - assert: Verify observation coverage information is displayed
+          - assert: Verify evidence source-row references are shown for the findings
+      - id: UPL-007
+        priority: High
+        name: Upload a CSV file and download CSV and JSON reports
+        description: Verify that a supported CSV upload works and the selected record can be downloaded as CSV and JSON reports.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Upload a valid CSV flight data file
+          - Wait for the uploaded record to load
+          - Download the selected record as CSV
+          - Download the audit report as JSON
+          - assert: Verify the uploaded record is loaded successfully
+          - assert: Verify both download actions complete successfully
+      - id: UPL-008
+        priority: Medium
+        name: Reject an invalid uploaded file
+        description: Verify that an invalid file upload shows an error without loading a record.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Upload an invalid file type
+          - assert: Verify a file validation error is displayed
+          - assert: Verify no record is loaded from the invalid file
+      - id: UPL-009
+        priority: Medium
+        name: Complete normal interactions without JavaScript errors
+        description: Verify that the main demo interactions complete successfully without visible JavaScript errors.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L1 sample flight scenario
+          - Select the L2 sample flight scenario
+          - Apply and reset the findings filters
+          - Upload a valid CSV flight data file
+          - Download the selected record as CSV
+          - Download the audit report as JSON
+          - assert: Verify the interface remains usable throughout the interactions
+          - assert: Verify no JavaScript errors are surfaced during normal use
+  - useCase: Usability & Client Stability
+    slug: UX
+    testCases:
+      - id: UX-001
+        priority: High
+        name: Select each sample flight scenario
+        description: Verifies that all ten sample flight scenarios can be selected from the public demo.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L1 sample flight
+          - Select the L2 sample flight
+          - Select the L3 sample flight
+          - Select the L4 sample flight
+          - Select the L5 sample flight
+          - Select the L6 sample flight
+          - Select the L7 sample flight
+          - Select the L8 sample flight
+          - Select the L9 sample flight
+          - Select the L10 sample flight
+          - assert: Verify the selected flight scenario updates for each choice
+          - assert: Verify the page continues to show a valid analysis view after switching between scenarios
+      - id: UX-002
+        priority: High
+        name: L1 shows a clean analysis result
+        description: Verifies that the L1 sample flight resolves to a clean result with no anomaly findings.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L1 sample flight
+          - assert: Verify the overall status is clean
+          - assert: Verify no anomaly findings are shown
+      - id: UX-003
+        priority: High
+        name: L2 shows a GPS speed anomaly
+        description: Verifies that the L2 sample flight reports a GPS-related speed anomaly finding.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L2 sample flight
+          - assert: Verify the overall status indicates an issue
+          - assert: Verify a GPS speed anomaly finding is shown
+      - id: UX-004
+        priority: High
+        name: L9 reports critical findings with exact rule coverage
+        description: Verifies that the L9 sample flight shows critical status with exactly the expected three findings.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L9 sample flight
+          - assert: Verify the overall status is critical
+          - assert: Verify exactly three findings are shown
+          - assert: Verify the findings correspond to the speed threshold, IMU freeze, and synthetic geofence intersection rules
+      - id: UX-005
+        priority: High
+        name: Filter findings by severity and rule, then reset filters
+        description: Verifies that findings can be narrowed by severity and rule and restored with a filter reset.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L9 sample flight
+          - Open the severity filter
+          - Filter findings to a critical severity level
+          - Open the rule filter
+          - Filter findings to a specific rule
+          - assert: Verify only findings matching the selected severity and rule are shown
+          - Reset the filters
+          - assert: Verify the full findings set is restored
+      - id: UX-006
+        priority: Medium
+        name: Review observation coverage and evidence references
+        description: Verifies that the analysis shows coverage information and source-row references for findings.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L9 sample flight
+          - Scroll to the observation coverage section
+          - Scroll to the evidence details for the findings
+          - assert: Verify observation coverage information is displayed
+          - assert: Verify evidence source-row references are displayed for the findings
+      - id: UX-007
+        priority: Medium
+        name: Upload a CSV file and download the analyzed outputs
+        description: Verifies that a valid CSV upload is accepted and both CSV and JSON report downloads are available for the selected analysis.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Upload a valid CSV file
+          - Wait for the uploaded data to be analyzed
+          - Download the selected record as CSV
+          - Download the audit report as JSON
+          - assert: Verify the uploaded file is accepted and analyzed
+          - assert: Verify both downloads are available after analysis
+      - id: UX-008
+        priority: Medium
+        name: Reject an invalid file upload gracefully
+        description: Verifies that an invalid file upload is handled with a visible validation error and without breaking the page.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Upload an invalid file type
+          - assert: Verify a file validation error is visible
+          - assert: Verify the analysis view remains usable after the invalid upload
+      - id: UX-009
+        priority: High
+        name: Interact with the demo without client-side runtime errors
+        description: Verifies that normal navigation and filter interactions complete without visible JavaScript errors.
+        steps:
+          - Navigate to the Flight Evidence demo
+          - Select the L2 sample flight
+          - Apply a finding filter
+          - Reset the filter
+          - Select the L1 sample flight
+          - assert: Verify the page remains responsive throughout the interactions
+          - assert: Verify no JavaScript error is shown during normal use

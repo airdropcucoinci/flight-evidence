@@ -4,3 +4,7 @@ node_modules/
 !.env.example
 coverage/
 .DS_Store
+test-results/
+playwright-report/
+competition-artifacts/
+portal44-results/

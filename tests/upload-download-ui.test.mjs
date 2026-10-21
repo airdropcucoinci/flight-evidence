@@ -30,3 +30,16 @@ test('CSV fixtures include valid and invalid deterministic inputs',async()=>{
  assert.equal(rows.length,20);
  assert.throws(()=>parseTelemetry(invalid,'csv'),/invalid lat/);
 });
+
+// A rejected upload must never leave a previous successful report available.
+test('invalid upload preserves previous valid analysis while displaying an explicit rejection',()=>{
+ const upload=source.slice(source.indexOf("byId('upload').addEventListener"),source.indexOf("byId('download').addEventListener"));
+ assert.match(upload,/Yükleme reddedildi/);
+ assert.match(upload,/Önceki geçerli analiz korunuyor/);
+ assert.match(upload,/byId\('error'\)\.textContent/);
+ const failed=upload.slice(upload.indexOf('catch(err)'));
+ assert.doesNotMatch(failed,/current\s*=/);
+ assert.match(failed,/if\(hasValidAnalysis\)/);
+ assert.match(failed,/else\{showInvalid\(err\)/);
+ assert.doesNotMatch(failed,/report-json.*disabled/);
+});

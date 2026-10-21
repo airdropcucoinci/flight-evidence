@@ -13,7 +13,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,8 +21,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Type check
         run: npm run typecheck
       - name: Smoke tests
@@ -31,10 +32,57 @@ jobs:
         run: npm run test:node
       - name: Vitest
         run: npm test
+      - name: Install Chromium for real browser tests
+        run: npx playwright install --with-deps --only-shell chromium
+      - name: Browser user journeys
+        run: npm run test:e2e
+      - name: Independent equivalents of all 44 portal scenarios
+        run: npm run test:portal44
+      - name: Summarize independent portal scenarios
+        if: always()
+        run: node scripts/summarize-portal44.mjs
+      - name: Upload independent 44-case evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: independent-portal44-evidence
+          path: portal44-results/
+          if-no-files-found: error
+      - name: Upload verified competition screenshots
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flight-evidence-demo-screenshots
+          path: competition-artifacts/*.png
+          if-no-files-found: error
+      - name: Upload browser failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flight-evidence-browser-failures
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
       - name: Test scenario contract
         run: npm run test:contract
-      - name: Release artifact safety scan
+      - name: Stage verified source and freshly compiled browser assets
         run: |
           mkdir -p "$RUNNER_TEMP/flight-evidence-release"
           git archive HEAD | tar -x -C "$RUNNER_TEMP/flight-evidence-release"
+          cp dist/*.js "$RUNNER_TEMP/flight-evidence-release/dist/"
           (cd "$RUNNER_TEMP/flight-evidence-release" && node scripts/check-release-artifacts.mjs)
+          (cd "$RUNNER_TEMP/flight-evidence-release" && node --test --test-concurrency=1 tests/*.test.mjs)
+      - name: Package tested release snapshot
+        run: |
+          (cd "$RUNNER_TEMP/flight-evidence-release" && zip -qr "$GITHUB_WORKSPACE/flight-evidence-source.zip" .)
+          sha256sum flight-evidence-source.zip > flight-evidence-source.sha256
+      - name: Upload source backup with checksum
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flight-evidence-source-backup
+          path: |
+            flight-evidence-source.zip
+            flight-evidence-source.sha256
+          if-no-files-found: error

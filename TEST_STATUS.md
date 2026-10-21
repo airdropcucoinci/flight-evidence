@@ -1,3 +1,9 @@
+# CURRENT STATUS — 20 October 2026
+
+The historical observations below refer to previous development versions, **not the current PR #1**. Latest verified PR CI: https://github.com/airdropcucoinci/flight-evidence/actions/runs/39486893446 — 163/163 Node regression tests, 6/6 Chromium E2E tests, typecheck, Vitest, test contract and security scan PASS. The generated source ZIP was downloaded and independently checked for SHA-256 integrity and 163/163 tests from the packaged tree. **TestSprite portal rerun and TestSprite PR status check remain unverified.** See [RELEASE_EVIDENCE_2026_10_20.md](RELEASE_EVIDENCE_2026_10_20.md).
+
+---
+
 # Test status — v3.6
 
 - TypeScript build: PASS (local)

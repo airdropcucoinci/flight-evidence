@@ -1,3 +1,9 @@
+# CURRENT HANDOFF — 20 October 2026
+
+The 17 October handoff instructions below are preserved for history; several earlier blockers have since been resolved. **Public GitHub repository, GitHub Actions CI, npm lockfile, Vitest, real Chromium E2E tests and CI-generated source ZIP are now verified.** Latest CI: https://github.com/airdropcucoinci/flight-evidence/actions/runs/39486893446 . **Still outstanding:** verify PR-branch Render deployment URL, configure TestSprite target trigger, rerun TestSprite's failed/blocked scenarios, obtain the actual TestSprite PR check, and complete X/Discord submission. The release ZIP now contains freshly built JavaScript and passed independent 163/163 tests after extraction. See [RELEASE_EVIDENCE_2026_10_20.md](RELEASE_EVIDENCE_2026_10_20.md).
+
+---
+
 # Flight Evidence — yarışma devri / 17 Ekim 2026
 
 ## Yerel ortamda doğrulanabilecekler

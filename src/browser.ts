@@ -7,14 +7,17 @@ const byId=(id:string)=>document.getElementById(id)!;
 const examples=byId('examples');
 let current=sample(1);
 let lastFindings:ReturnType<typeof analyze>['findings']=[];
+let hasValidAnalysis=true;
+const scenarioButtons:HTMLButtonElement[]=[];
 function renderFindings(){const list=byId('findings');list.replaceChildren();const filter=(byId('finding-filter') as HTMLSelectElement).value;const rule=(byId('rule-filter') as HTMLSelectElement).value;const shown=lastFindings.filter(f=>(filter==='ALL'||f.severity===filter)&&(rule==='ALL'||f.rule===rule));byId('finding-count').textContent=`${shown.length} / ${lastFindings.length} bulgu gösteriliyor`;for(const f of shown){const li=document.createElement('li');li.dataset.testid=`finding-${f.rule}`;li.textContent=`${f.rule} | t=${f.at}s | ${f.severity} | ${f.reason}`;list.append(li);}if(!lastFindings.length){const li=document.createElement('li');li.textContent='Tanımlı demo kurallarına göre bulgu yok.';list.append(li);}else if(!shown.length){const li=document.createElement('li');li.textContent='Bu filtrede bulgu yok.';list.append(li);}}
 byId('finding-filter').addEventListener('change',renderFindings);
 byId('rule-filter').addEventListener('change',renderFindings);
 byId('reset-filters').addEventListener('click',()=>{(byId('finding-filter') as HTMLSelectElement).value='ALL';(byId('rule-filter') as HTMLSelectElement).value='ALL';renderFindings();});
 const names=['Temiz uçuş','GPS sıçraması','İrtifa ayrışması','Sensör donması','Zaman geriye','Batarya çelişkisi','Yasak bölge','40 m/s sınır','Çoklu bulgu','Bozuk dosya'];
-for(let i=1;i<=10;i++){const b=document.createElement('button');b.textContent=`L${i} · ${names[i-1]}`;b.dataset.testid=`sample-L${i}`;b.onclick=()=>{current=sample(i);byId('selected-scenario').textContent=`Seçili senaryo: L${i} · ${names[i-1]}`;show();};examples.append(b);}
-function show(){const status=byId('status'),findings=byId('findings');findings.replaceChildren();try{const result=analyze(current);const report=createReport(current,'selected-sample-or-upload');renderRuleEvidence(report);byId('report-json').removeAttribute('disabled');const coverage=byId('coverage');coverage.dataset.complete=String(report.coverage.complete);coverage.textContent=report.coverage.complete?'Gözlem kapsamı: zaman kesintisi tespit edilmedi. Bu, uçuş güvenliği onayı değildir.':`Gözlem kapsamı SINIRLI: ${report.coverage.interruptedIntervalCount} zaman kesintisi/hatası var. Kayıt dışı aralıklarda rota ve sensör davranışı bilinmiyor.`;status.textContent=result.status==='CLEAN'?'TEMİZ':result.status==='WARNING'?'DİKKAT':'KRİTİK';status.dataset.testid='overall-status';status.dataset.status=result.status;const assessment=byId('assessment');assessment.dataset.code=report.assessment.code;assessment.textContent=report.assessment.code==='INCOMPLETE'?'DEĞERLENDİRME EKSİK: Bulgu bulunmadı ancak veri boşlukları nedeniyle tam değerlendirme yapılamadı.':report.assessment.complete?'Gözlemlenen veri değerlendirildi; gerçek uçuş güvenliği onayı değildir.':'DEĞERLENDİRME KISMİ: Bulgular mevcut, ancak veri boşlukları nedeniyle tüm uçuş değerlendirilemedi.';lastFindings=result.findings;renderFindings();const timeline=byId('timeline');timeline.replaceChildren();for(const event of buildTimeline(current)){const li=document.createElement('li');li.dataset.testid=`timeline-${event.kind.toLowerCase()}`;li.textContent=`t=${event.at}s · ${event.kind} · ${event.rule}: ${event.description}`;timeline.append(li);}if(!timeline.childNodes.length){const li=document.createElement('li');li.textContent='Kayıt boşluğu veya bulgu yok.';timeline.append(li);}byId('error').textContent='';}catch(e){lastFindings=[];renderFindings();status.textContent='ANALİZ YAPILMADI';status.dataset.status='INVALID';byId('timeline').replaceChildren();byId('assessment').textContent='Değerlendirme yapılamadı.';byId('assessment').dataset.code='INVALID';byId('coverage').textContent='Gözlem kapsamı: veri geçersiz, değerlendirilemedi.';byId('coverage').dataset.complete='invalid';byId('error').textContent=e instanceof Error?e.message:String(e);byId('rule-evidence').replaceChildren();byId('report-json').setAttribute('disabled','');}}
-byId('upload').addEventListener('change',async(e)=>{const f=(e.target as HTMLInputElement).files?.[0];if(!f)return;try{const ext=f.name.toLowerCase();if(!ext.endsWith('.csv')&&!ext.endsWith('.json'))throw Error('Yalnızca CSV veya JSON dosyası yüklenebilir.');const next=parseTelemetry(await f.text(),ext.endsWith('.json')?'json':'csv');analyze(next);current=next;byId('selected-scenario').textContent=`Yüklenen dosya: ${f.name}`;show();}catch(err){byId('error').textContent=err instanceof Error?err.message:String(err);(e.target as HTMLInputElement).value='';}});
+for(let i=1;i<=10;i++){const b=document.createElement('button');b.textContent=`L${i} · ${names[i-1]}`;b.dataset.testid=`sample-L${i}`;b.setAttribute('aria-pressed',String(i===1));b.onclick=()=>{current=sample(i);scenarioButtons.forEach((button,j)=>button.setAttribute('aria-pressed',String(j===i-1)));(byId('finding-filter') as HTMLSelectElement).value='ALL';(byId('rule-filter') as HTMLSelectElement).value='ALL';byId('selected-scenario').textContent=`Seçili senaryo: L${i} · ${names[i-1]}`;show();};scenarioButtons.push(b);examples.append(b);}
+function showInvalid(error:unknown){hasValidAnalysis=false;lastFindings=[];renderFindings();const status=byId('status');status.textContent='ANALİZ YAPILMADI';status.dataset.status='INVALID';byId('timeline').replaceChildren();byId('assessment').textContent='Değerlendirme yapılamadı.';byId('assessment').dataset.code='INVALID';byId('coverage').textContent='Gözlem kapsamı: veri geçersiz, değerlendirilemedi.';byId('coverage').dataset.complete='invalid';byId('error').textContent=error instanceof Error?error.message:String(error);byId('rule-evidence').replaceChildren();byId('route-plot').replaceChildren();byId('altitude-plot').replaceChildren();byId('row-count').textContent='—';byId('total-count').textContent='—';byId('report-json').setAttribute('disabled','');byId('download').setAttribute('disabled','');}
+function show(){const status=byId('status'),findings=byId('findings');findings.replaceChildren();try{const result=analyze(current);const report=createReport(current,'selected-sample-or-upload');hasValidAnalysis=true;renderRuleEvidence(report);renderVisuals(current,result.findings);byId('report-json').removeAttribute('disabled');byId('download').removeAttribute('disabled');const coverage=byId('coverage');coverage.dataset.complete=String(report.coverage.complete);coverage.textContent=report.coverage.complete?'Gözlem kapsamı: zaman kesintisi tespit edilmedi. Bu, uçuş güvenliği onayı değildir.':`Gözlem kapsamı SINIRLI: ${report.coverage.interruptedIntervalCount} zaman kesintisi/hatası var. Kayıt dışı aralıklarda rota ve sensör davranışı bilinmiyor.`;status.textContent=result.status==='CLEAN'?'TEMİZ':result.status==='WARNING'?'DİKKAT':'KRİTİK';status.dataset.testid='overall-status';status.dataset.status=result.status;const assessment=byId('assessment');assessment.dataset.code=report.assessment.code;assessment.textContent=report.assessment.code==='INCOMPLETE'?'DEĞERLENDİRME EKSİK: Bulgu bulunmadı ancak veri boşlukları nedeniyle tam değerlendirme yapılamadı.':report.assessment.complete?'Gözlemlenen veri değerlendirildi; gerçek uçuş güvenliği onayı değildir.':'DEĞERLENDİRME KISMİ: Bulgular mevcut, ancak veri boşlukları nedeniyle tüm uçuş değerlendirilemedi.';lastFindings=result.findings;renderFindings();const timeline=byId('timeline');timeline.replaceChildren();for(const event of buildTimeline(current)){const li=document.createElement('li');li.dataset.testid=`timeline-${event.kind.toLowerCase()}`;li.textContent=`t=${event.at}s · ${event.kind} · ${event.rule}: ${event.description}`;timeline.append(li);}if(!timeline.childNodes.length){const li=document.createElement('li');li.textContent='Kayıt boşluğu veya bulgu yok.';timeline.append(li);}byId('error').textContent='';}catch(e){showInvalid(e);}}
+byId('upload').addEventListener('change',async(e)=>{const f=(e.target as HTMLInputElement).files?.[0];if(!f)return;try{const ext=f.name.toLowerCase();if(!ext.endsWith('.csv')&&!ext.endsWith('.json'))throw Error('Yalnızca CSV veya JSON dosyası yüklenebilir.');const next=parseTelemetry(await f.text(),ext.endsWith('.json')?'json':'csv');analyze(next);current=next;byId('selected-scenario').textContent=`Yüklenen dosya: ${f.name}`;show();}catch(err){const detail=err instanceof Error?err.message:String(err);if(hasValidAnalysis){byId('error').textContent=`Yükleme reddedildi (${f.name}): ${detail}. Önceki geçerli analiz korunmuştur.`;byId('selected-scenario').textContent=`Önceki geçerli analiz korunuyor · yükleme reddedildi: ${f.name}`;}else{showInvalid(err);byId('error').textContent=`Yükleme reddedildi (${f.name}): ${detail}. Geçerli analiz yok.`;byId('selected-scenario').textContent=`Geçersiz dosya reddedildi: ${f.name}`;}(e.target as HTMLInputElement).value='';}});
 byId('download').addEventListener('click',()=>{const blob=new Blob([toCSV(current)],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='flight-evidence-sample.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);});
 show();
 
@@ -27,6 +30,69 @@ byId('report-json').addEventListener('click',()=>{
     byId('error').textContent='';
   }catch(e){byId('error').textContent=e instanceof Error?e.message:String(e);}
 });
+
+
+// Visuals are schematic and based solely on observed rows; discontinuities never imply a flown path.
+function renderVisuals(rows:ReturnType<typeof sample>, findings:ReturnType<typeof analyze>['findings']){
+ const route=byId('route-plot') as unknown as SVGSVGElement;
+ const altitude=byId('altitude-plot') as unknown as SVGSVGElement;
+ route.replaceChildren();altitude.replaceChildren();
+ byId('row-count').textContent=String(rows.length);
+ byId('total-count').textContent=String(findings.length);
+ const ns='http://www.w3.org/2000/svg';
+ const make=(name:string,attributes:Record<string,string>)=>{
+  const element=document.createElementNS(ns,name);
+  for(const [key,value] of Object.entries(attributes))element.setAttribute(key,value);
+  return element;
+ };
+ const line=(svg:SVGSVGElement,klass:string,coords:string[])=>{
+  if(coords.length<2)return;
+  svg.append(make('polyline',{'class':klass,points:coords.join(' ')}));
+ };
+ const safeRange=(min:number,max:number)=>Math.max(max-min,0.0000001);
+ // Longitude is unwrapped to prevent a fictitious world-spanning line at the antimeridian.
+ const unwrapped:number[]=[];
+ for(let i=0;i<rows.length;i++){
+  if(!i)unwrapped.push(rows[i].lon);
+  else unwrapped.push(unwrapped[i-1]+(((rows[i].lon-rows[i-1].lon+540)%360)-180));
+ }
+ const latitudes=rows.map(r=>r.lat),minLat=Math.min(...latitudes),maxLat=Math.max(...latitudes);
+ const minLon=Math.min(...unwrapped),maxLon=Math.max(...unwrapped);
+ const routeXY=(i:number)=>[
+  24+752*(unwrapped[i]-minLon)/safeRange(minLon,maxLon),
+  218-196*(rows[i].lat-minLat)/safeRange(minLat,maxLat)
+ ];
+ const altitudes=rows.flatMap(r=>[r.gpsAlt,r.baroAlt]);
+ const minAlt=Math.min(...altitudes),maxAlt=Math.max(...altitudes);
+ const altXY=(i:number,key:'gpsAlt'|'baroAlt')=>[
+  24+752*i/Math.max(1,rows.length-1),
+  218-196*(rows[i][key]-minAlt)/safeRange(minAlt,maxAlt)
+ ];
+ const contiguous=(i:number)=>i===0||(rows[i].t>rows[i-1].t&&rows[i].t-rows[i-1].t<=5);
+ let routeSegment:string[]=[],gpsSegment:string[]=[],baroSegment:string[]=[];
+ const flush=()=>{
+  line(route,'track-line',routeSegment);line(altitude,'alt-gps',gpsSegment);
+  line(altitude,'alt-baro',baroSegment);routeSegment=[];gpsSegment=[];baroSegment=[];
+ };
+ for(let i=0;i<rows.length;i++){
+  if(!contiguous(i))flush();
+  routeSegment.push(routeXY(i).map(n=>n.toFixed(2)).join(','));
+  gpsSegment.push(altXY(i,'gpsAlt').map(n=>n.toFixed(2)).join(','));
+  baroSegment.push(altXY(i,'baroAlt').map(n=>n.toFixed(2)).join(','));
+ }
+ flush();
+ // Mark findings on observed rows only; no invented locations across gaps.
+ for(const finding of findings){
+  const index=finding.sourceRowIndex??rows.findIndex(row=>row.t===finding.at);
+  if(index<0||index>=rows.length)continue;
+  const xy=routeXY(index),az=altXY(index,'gpsAlt');
+  for(const [svg,point] of [[route,xy],[altitude,az]] as const){
+   const marker=make('circle',{cx:point[0].toFixed(2),cy:point[1].toFixed(2),r:'5','class':'event-mark','data-testid':`plot-marker-${finding.rule}`});
+   const title=make('title',{});title.textContent=`${finding.rule} • t=${finding.at}s • ${finding.reason}`;
+   marker.append(title);svg.append(marker);
+  }
+ }
+}
 
 function renderRuleEvidence(report:ReturnType<typeof createReport>){
  const container=byId('rule-evidence');container.replaceChildren();
