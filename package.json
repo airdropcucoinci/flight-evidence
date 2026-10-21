@@ -14,7 +14,8 @@
     "test:contract": "node scripts/check-test-contract.mjs",
     "check:release": "node scripts/check-release-artifacts.mjs",
     "verify:deployment": "node scripts/verify-deployment.mjs",
-    "test:e2e": "playwright test --config=playwright.config.mjs"
+    "test:e2e": "playwright test --config=playwright.config.mjs",
+    "test:portal44": "npm run build && playwright test --config=playwright.portal44.config.mjs"
   },
   "devDependencies": {
     "typescript": "^5.9.0",
